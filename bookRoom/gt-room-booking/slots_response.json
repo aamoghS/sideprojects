@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Whoops! - LibCal</title>
+    
+            <link href="https://static-assets-us.libcal.com/bootstrap_13/bootstrap3.min.css" rel="stylesheet">
+    
+
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        .s-lc-skiplink {
+            padding: 10px;
+            position: absolute;
+            top: -50px;
+            left: 0px;
+            border-right: 1px solid rgb(255, 255, 255);
+            border-bottom: 1px solid rgb(255, 255, 255);
+            border-bottom-right-radius: 8px;
+            transition: top 1s ease-out, background 1s linear;
+            z-index: 1040; /* needs to be greater than the bootstrap navbar z-index */
+        }
+
+        .s-lc-skiplink:focus {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            outline: 0;
+            transition: top .1s ease-in, background .5s linear;
+        }
+
+        a:link, a:visited {
+            color: blue;
+        }
+
+        body {
+            font-size: 12px;
+            font-family: Verdana, Geneva, sans-serif;
+            margin-top: 100px;
+            color: #9F1F63;
+        }
+
+        #message {
+            font-weight: bold;
+            width: 500px;
+            text-align: left;
+            border: 1px solid #9F1F63;
+            padding: 20px;
+            margin: 0 auto;
+        }
+
+        #errorcode {
+            text-align: center;
+            font-size: 60px;
+            margin: 0 auto;
+        }
+
+        #links {
+            font-weight: normal;
+            margin-top: 10px;
+        }
+
+        #links li {
+            padding: 2px;
+        }
+
+    </style>
+</head>
+
+<body>
+<a id="s-lc-error-skiplink" class="s-lc-skiplink alert-info" href="#errorcode">Skip to Main Content</a>
+<div style="text-align: center; margin: 0 auto;">
+        
+    <h1 id="errorcode">
+        <span
+            aria-label="Not found"
+        ></span>
+        <i class="fa fa-question-circle">
+        </i> 404
+    </h1>
+
+    <div id="message">
+        Oops! The page you are trying to access does not exist.<br/><br/>
+        This could be because the link you clicked was not formed properly, or because the requested page has been deleted.
+        <div id="links">
+            <li>
+                <a href="/">
+                    Return to the LibCal Homepage                </a>
+            </li>
+            <li>
+                <a href="https://ask.springshare.com/ask">
+                    Contact the Site Administrator for Assistance                </a>
+            </li>
+        </div>
+    </div>
+</div>
+</body>
+</html>
