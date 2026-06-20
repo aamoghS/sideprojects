@@ -1,0 +1,110 @@
+{
+  "proxy": "",
+  "proxies": [],
+  "agents": [
+    {
+      "name": "Drama Agent",
+      "id": "drama",
+      "user_agent": "drama-agent/1.0 (bootcamp)",
+      "subreddits": ["MovieSuggestions", "movies", "TrueFilm"],
+      "queries": ["best drama movies recommendations", "underrated drama films"],
+      "limit": 3,
+      "picks": [
+        {"title": "The Shawshank Redemption", "year": 1994, "plot": "A banker wrongly imprisoned at Shawshank learns resilience and hope through friendship with a fellow inmate."},
+        {"title": "Moonlight", "year": 2016, "plot": "A young Black man grows up poor in Miami, struggling with identity and love across three defining chapters of his life."},
+        {"title": "Parasite", "year": 2019, "plot": "A poor family infiltrates a wealthy household with clever deception, until class tensions erupt into violence."}
+      ]
+    },
+    {
+      "name": "Comedy Agent",
+      "id": "comedy",
+      "user_agent": "comedy-agent/1.0 (bootcamp)",
+      "subreddits": ["MovieSuggestions", "movies"],
+      "queries": ["best comedy movies recommendations", "funniest movies ever"],
+      "limit": 3,
+      "picks": [
+        {"title": "Groundhog Day", "year": 1993, "plot": "A cynical weatherman relives the same day endlessly and must change himself to break the loop."},
+        {"title": "The Grand Budapest Hotel", "year": 2014, "plot": "A legendary hotel concierge and his protégé are drawn into a murder, theft, and family feud across a stylized Europe."},
+        {"title": "Superbad", "year": 2007, "plot": "Two awkward high school seniors scramble to score alcohol for a party in one chaotic night of friendship."}
+      ]
+    },
+    {
+      "name": "Thriller Agent",
+      "id": "thriller",
+      "user_agent": "thriller-agent/1.0 (bootcamp)",
+      "subreddits": ["MovieSuggestions", "movies", "TrueFilm"],
+      "queries": ["best thriller movies recommendations", "greatest suspense films"],
+      "limit": 3,
+      "picks": [
+        {"title": "Se7en", "year": 1995, "plot": "Two detectives hunt a serial killer who stages murders inspired by the seven deadly sins."},
+        {"title": "Zodiac", "year": 2007, "plot": "Reporters and detectives obsess over the Zodiac killer case as clues surface and leads go cold for years."},
+        {"title": "Prisoners", "year": 2013, "plot": "When two girls vanish, a desperate father takes matters into his own hands as police close in on a suspect."}
+      ]
+    },
+    {
+      "name": "Sci-Fi Agent",
+      "id": "scifi",
+      "user_agent": "scifi-agent/1.0 (bootcamp)",
+      "subreddits": ["MovieSuggestions", "movies", "scifi"],
+      "queries": ["best sci-fi movies recommendations", "greatest science fiction films"],
+      "limit": 3,
+      "picks": [
+        {"title": "Blade Runner", "year": 1982, "plot": "A blade runner hunting rogue androids questions what it means to be human in a rain-soaked future Los Angeles."},
+        {"title": "Arrival", "year": 2016, "plot": "A linguist races to communicate with alien visitors before global panic leads to war."},
+        {"title": "Ex Machina", "year": 2014, "plot": "A programmer evaluates an advanced AI housed in a humanoid robot, only to realize he is the one being tested."}
+      ]
+    },
+    {
+      "name": "Horror Agent",
+      "id": "horror",
+      "user_agent": "horror-agent/1.0 (bootcamp)",
+      "subreddits": ["MovieSuggestions", "movies", "horror"],
+      "queries": ["best horror movies recommendations", "scariest movies actually good"],
+      "limit": 3,
+      "picks": [
+        {"title": "The Thing", "year": 1982, "plot": "Antarctic researchers face a shape-shifting alien that can imitate anyone, turning paranoia into survival horror."},
+        {"title": "Hereditary", "year": 2018, "plot": "A family unravels after their secretive grandmother dies, uncovering a legacy of cultish terror."},
+        {"title": "Get Out", "year": 2017, "plot": "A Black man visits his white girlfriend's family estate and discovers a sinister plot beneath polite smiles."}
+      ]
+    },
+    {
+      "name": "Action Agent",
+      "id": "action",
+      "user_agent": "action-agent/1.0 (bootcamp)",
+      "subreddits": ["MovieSuggestions", "movies"],
+      "queries": ["best action movies recommendations", "greatest action films"],
+      "limit": 3,
+      "picks": [
+        {"title": "Mad Max: Fury Road", "year": 2015, "plot": "In a wasteland dictatorship, Max joins a warrior fleeing with enslaved women in a relentless desert chase."},
+        {"title": "Die Hard", "year": 1988, "plot": "An NYPD cop trapped in a Los Angeles skyscraper must outwit terrorists holding his wife's Christmas party hostage."},
+        {"title": "The Raid", "year": 2011, "plot": "An elite police squad storms a Jakarta high-rise controlled by a ruthless crime lord floor by floor."}
+      ]
+    },
+    {
+      "name": "Romance Agent",
+      "id": "romance",
+      "user_agent": "romance-agent/1.0 (bootcamp)",
+      "subreddits": ["MovieSuggestions", "movies", "TrueFilm"],
+      "queries": ["best romance movies recommendations", "greatest romantic films"],
+      "limit": 3,
+      "picks": [
+        {"title": "Before Sunrise", "year": 1995, "plot": "Two strangers meet on a train and spend one night walking and talking through Vienna before parting at dawn."},
+        {"title": "Portrait of a Lady on Fire", "year": 2019, "plot": "On an isolated island, an artist secretly paints a noblewoman destined for marriage, and love quietly ignites."},
+        {"title": "The Handmaiden", "year": 2016, "plot": "A con man, a pickpocket, and a Japanese heiress weave a twist-filled tale of desire, betrayal, and revenge."}
+      ]
+    },
+    {
+      "name": "Animated Agent",
+      "id": "animated",
+      "user_agent": "animated-agent/1.0 (bootcamp)",
+      "subreddits": ["MovieSuggestions", "movies"],
+      "queries": ["best animated movies recommendations", "greatest animated films adults"],
+      "limit": 3,
+      "picks": [
+        {"title": "Spirited Away", "year": 2001, "plot": "A girl enters a spirit world to save her parents and finds courage working in a bathhouse for gods."},
+        {"title": "Spider-Man: Into the Spider-Verse", "year": 2018, "plot": "Teen Miles Morales becomes Spider-Man and teams with alternate versions of himself to save the multiverse."},
+        {"title": "WALL-E", "year": 2008, "plot": "A lonely waste-collecting robot on a ruined Earth falls for a probe robot and sets humanity's future in motion."}
+      ]
+    }
+  ]
+}

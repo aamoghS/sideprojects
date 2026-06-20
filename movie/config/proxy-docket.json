@@ -1,0 +1,51 @@
+{
+  "rotation": "round_robin",
+  "default_proxy": "",
+  "proxies": [
+    {
+      "id": "local",
+      "name": "Local dev proxy (localproxy)",
+      "url": "http://127.0.0.1:8888",
+      "enabled": false,
+      "provider": "self",
+      "notes": "Start with: go run ./cmd/localproxy. Enable only for local dev — not for external/Docker runs.",
+      "tags": ["local", "dev"]
+    },
+    {
+      "id": "self-hosted",
+      "name": "My VPS proxy",
+      "url": "http://USER:PASS@YOUR_VPS_IP:8888",
+      "enabled": false,
+      "provider": "self",
+      "notes": "Self-hosted edgeproxy on your VPS. Deploy with docker compose -f docker-compose.proxy.yml up -d. Replace USER, PASS, YOUR_VPS_IP. See config/SELF-HOST-PROXY.md.",
+      "tags": ["self-hosted", "vps", "template"]
+    },
+    {
+      "id": "http-residential",
+      "name": "HTTP residential (template)",
+      "url": "http://USER:PASS@YOUR-PROXY-HOST:8080",
+      "enabled": false,
+      "provider": "webshare",
+      "notes": "Paste credentials from Webshare, Bright Data, IPRoyal, Oxylabs, etc. Replace USER, PASS, YOUR-PROXY-HOST, and port.",
+      "tags": ["http", "residential", "template"]
+    },
+    {
+      "id": "http-datacenter",
+      "name": "HTTP datacenter (template)",
+      "url": "http://USER:PASS@YOUR-PROXY-HOST:8000",
+      "enabled": false,
+      "provider": "oxylabs",
+      "notes": "Datacenter HTTP gateway. Example host: pr.oxylabs.io — use the host and port from your provider dashboard.",
+      "tags": ["http", "datacenter", "template"]
+    },
+    {
+      "id": "socks5-residential",
+      "name": "SOCKS5 residential (template)",
+      "url": "socks5://USER:PASS@YOUR-PROXY-HOST:1080",
+      "enabled": false,
+      "provider": "iproyal",
+      "notes": "SOCKS5 endpoint from IPRoyal, Bright Data, or similar. Replace USER, PASS, YOUR-PROXY-HOST, and port.",
+      "tags": ["socks5", "residential", "template"]
+    }
+  ]
+}

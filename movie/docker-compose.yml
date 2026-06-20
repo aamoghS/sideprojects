@@ -1,0 +1,41 @@
+services:
+  proxy-server:
+    build:
+      context: .
+      dockerfile: deploy/proxy/Dockerfile
+    image: movie-proxy:latest
+    ports:
+      - "${PROXY_PORT:-8888}:8888"
+    environment:
+      PROXY_ADDR: 0.0.0.0:8888
+      PROXY_USER: ${PROXY_USER:-}
+      PROXY_PASS: ${PROXY_PASS:-}
+    restart: unless-stopped
+    profiles:
+      - proxy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8888/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  movie-finder:
+    build: .
+    image: movie-finder:latest
+    environment:
+      MOVIE_FINDER_PROXY: ${MOVIE_FINDER_PROXY:-}
+      HTTP_PROXY: ${HTTP_PROXY:-}
+      HTTPS_PROXY: ${HTTPS_PROXY:-}
+    volumes:
+      - ./config/agents.json:/app/config/agents.json:ro
+      - ./config/proxy-docket.json:/app/config/proxy-docket.json:ro
+    command:
+      - -config
+      - /app/config/agents.json
+      - -proxy-docket
+      - /app/config/proxy-docket.json
+      - -workers
+      - ${MOVIE_WORKERS:-16}
+      - -timeout
+      - ${MOVIE_TIMEOUT:-45s}

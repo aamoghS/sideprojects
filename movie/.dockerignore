@@ -1,0 +1,5 @@
+movie.exe
+*.exe
+.env
+.git
+script_output.txt
