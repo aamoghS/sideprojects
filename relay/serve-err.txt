@@ -1,0 +1,2 @@
+relay listening on :50277
+registered service: relay.v1.RelayService

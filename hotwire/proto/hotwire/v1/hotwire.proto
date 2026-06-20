@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package hotwire.v1;
+
+option go_package = "hotwire/proto/hotwire/v1;hotwirev1";
+
+service ControlPlane {
+  rpc ReportMetrics(stream MetricReport) returns (stream WeightAssignment);
+  rpc SubscribeWeights(SubscribeRequest) returns (stream WeightUpdate);
+  rpc ListBackends(ListBackendsRequest) returns (ListBackendsResponse);
+}
+
+message MetricReport {
+  string backend_id = 1;
+  double p50_ms = 2;
+  double p99_ms = 3;
+  double error_rate = 4;
+  int32 inflight = 5;
+  double rps = 6;
+  int64 timestamp_unix_ms = 7;
+}
+
+message WeightAssignment {
+  string backend_id = 1;
+  double weight = 2;
+  int64 timestamp_unix_ms = 3;
+}
+
+message SubscribeRequest {}
+
+message WeightUpdate {
+  repeated BackendWeight weights = 1;
+  string reason = 2;
+  int64 timestamp_unix_ms = 3;
+}
+
+message BackendWeight {
+  string backend_id = 1;
+  double weight = 2;
+  double score = 3;
+  double p99_ms = 4;
+  double error_rate = 5;
+}
+
+message ListBackendsRequest {}
+
+message ListBackendsResponse {
+  repeated BackendState backends = 1;
+}
+
+message BackendState {
+  string backend_id = 1;
+  double weight = 2;
+  double score = 3;
+  double p99_ms = 4;
+  double p50_ms = 5;
+  double error_rate = 6;
+  int32 inflight = 7;
+  double rps = 8;
+  int64 last_report_unix_ms = 9;
+  bool stale = 10;
+}

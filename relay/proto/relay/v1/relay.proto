@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package relay.v1;
+
+option go_package = "relay/gen/relay/v1;relayv1";
+
+service RelayService {
+  rpc Publish(PublishRequest) returns (PublishResponse);
+  rpc Subscribe(SubscribeRequest) returns (stream Event);
+  rpc JoinRoom(stream RoomFrame) returns (stream RoomFrame);
+}
+
+message Event {
+  string id = 1;
+  string topic = 2;
+  bytes payload = 3;
+  int64 timestamp_unix_nano = 4;
+  map<string, string> metadata = 5;
+  int64 offset = 6;
+}
+
+message PublishRequest {
+  string topic = 1;
+  bytes payload = 2;
+  map<string, string> metadata = 3;
+}
+
+message PublishResponse {
+  string event_id = 1;
+  int32 subscriber_count = 2;
+  int64 offset = 3;
+}
+
+message SubscribeRequest {
+  repeated string topics = 1;
+  int64 from_offset = 2;
+}
+
+message RoomFrame {
+  oneof body {
+    RoomJoin join = 1;
+    RoomChat chat = 2;
+    RoomLeave leave = 3;
+    RoomPresence presence = 4;
+  }
+}
+
+message RoomJoin {
+  string room = 1;
+  string nickname = 2;
+}
+
+message RoomChat {
+  string room = 1;
+  string sender = 2;
+  string text = 3;
+  int64 timestamp_unix_nano = 4;
+}
+
+message RoomLeave {
+  string room = 1;
+}
+
+message RoomPresence {
+  string room = 1;
+  PresenceKind kind = 2;
+  string participant = 3;
+  int32 participant_count = 4;
+}
+
+enum PresenceKind {
+  PRESENCE_KIND_UNSPECIFIED = 0;
+  PRESENCE_KIND_JOIN = 1;
+  PRESENCE_KIND_LEAVE = 2;
+}
