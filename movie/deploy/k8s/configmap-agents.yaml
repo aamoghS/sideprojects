@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: movie-agents
+  namespace: crawl
+data:
+  agents.json: |
+    {
+      "proxies": [],
+      "agents": [
+        {"name": "Drama Agent", "id": "drama", "user_agent": "drama-agent/1.0", "subreddits": ["MovieSuggestions", "movies"], "queries": ["best drama movies"], "limit": 3, "picks": []},
+        {"name": "Comedy Agent", "id": "comedy", "user_agent": "comedy-agent/1.0", "subreddits": ["MovieSuggestions", "movies"], "queries": ["best comedy movies"], "limit": 3, "picks": []},
+        {"name": "Thriller Agent", "id": "thriller", "user_agent": "thriller-agent/1.0", "subreddits": ["MovieSuggestions", "movies"], "queries": ["best thriller movies"], "limit": 3, "picks": []}
+      ]
+    }

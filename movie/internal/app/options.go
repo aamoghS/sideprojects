@@ -7,14 +7,17 @@ import (
 )
 
 type Options struct {
-	Config     string
-	Sequential bool
-	Offline    bool
-	Workers    int
-	Proxy      string
-	Docket     string
+	Config      string
+	Sequential  bool
+	Offline     bool
+	Workers     int
+	Proxy       string
+	Docket      string
 	TestProxies bool
-	Timeout    time.Duration
+	Timeout     time.Duration
+	AgentID     string
+	AgentIndex  int
+	Output      string
 }
 
 func ParseFlags() Options {
@@ -26,6 +29,9 @@ func ParseFlags() Options {
 	docket := flag.String("proxy-docket", "config/proxy-docket.json", "Proxy docket file (set to empty to disable)")
 	testProxies := flag.Bool("test-proxies", false, "Test proxies in docket and exit")
 	timeout := flag.Duration("timeout", 45*time.Second, "Hard max runtime before giving up on network calls")
+	agentID := flag.String("agent", "", "Run one agent by id (e.g. drama)")
+	agentIndex := flag.Int("agent-index", -1, "Run one agent by index (K8s indexed Job sets JOB_COMPLETION_INDEX)")
+	output := flag.String("output", "", "Write JSON results to this file")
 
 	flag.Parse()
 
@@ -38,6 +44,9 @@ func ParseFlags() Options {
 		Docket:      *docket,
 		TestProxies: *testProxies,
 		Timeout:     *timeout,
+		AgentID:     *agentID,
+		AgentIndex:  *agentIndex,
+		Output:      *output,
 	}
 }
 

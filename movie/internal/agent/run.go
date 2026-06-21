@@ -12,10 +12,13 @@ func Run(ctx context.Context, client *scraper.Client, a Agent) Result {
 	var movies []Movie
 
 	found := scraper.ScrapeReddit(ctx, client, scraper.RedditInput{
-		UserAgent:  a.UserAgent,
-		Subreddits: a.Subreddits,
-		Queries:    a.Queries,
-		Limit:      limit,
+		UserAgent:     a.UserAgent,
+		Subreddits:    a.Subreddits,
+		Queries:       a.Queries,
+		Limit:         limit,
+		Discover:      a.Discover != nil && *a.Discover,
+		MaxSubreddits: a.MaxSubreddits,
+		MaxThreads:    a.MaxThreads,
 	})
 	for _, m := range found {
 		if ctx.Err() != nil {

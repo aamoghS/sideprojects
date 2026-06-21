@@ -244,6 +244,6 @@ func BenchmarkHTMLParser_FindElements(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_ = doc.findElements("h1")
 		_ = doc.findElements("div")
-		_ = doc.findImages()
+		_, _ = doc.findImages()
 	}
 }

@@ -8,14 +8,17 @@ type Pick struct {
 }
 
 type Agent struct {
-	Name       string   `json:"name"`
-	ID         string   `json:"id"`
-	UserAgent  string   `json:"user_agent"`
-	Proxy      string   `json:"proxy,omitempty"`
-	Subreddits []string `json:"subreddits"`
-	Queries    []string `json:"queries"`
-	Limit      int      `json:"limit"`
-	Picks      []Pick   `json:"picks"`
+	Name          string   `json:"name"`
+	ID            string   `json:"id"`
+	UserAgent     string   `json:"user_agent"`
+	Proxy         string   `json:"proxy,omitempty"`
+	Subreddits    []string `json:"subreddits"`
+	Queries       []string `json:"queries"`
+	Limit         int      `json:"limit"`
+	Discover      *bool    `json:"discover,omitempty"`
+	MaxSubreddits int      `json:"max_subreddits,omitempty"`
+	MaxThreads    int      `json:"max_threads,omitempty"`
+	Picks         []Pick   `json:"picks"`
 }
 
 type Config struct {

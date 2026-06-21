@@ -2,12 +2,16 @@ package scraper
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
+)
+
+var (
+	wikiParaRE   = regexp.MustCompile(`(?s)<p>(.*?)</p>`)
+	wikiSearchRE = regexp.MustCompile(`(?i)class="mw-search-result-heading"[^>]*>\s*<a href="(/wiki/[^"]+)"`)
 )
 
 func ScrapeWikiPlot(ctx context.Context, client *Client, userAgent, title string, year int, wikiOverride string) string {
@@ -33,7 +37,7 @@ func ScrapeWikiPlot(ctx context.Context, client *Client, userAgent, title string
 			continue
 		}
 		seen[page] = true
-		if plot := fetchWikiSummary(wikiCtx, client, userAgent, page, year); plot != "" {
+		if plot := fetchWikiPagePlot(wikiCtx, client, userAgent, page, year); plot != "" {
 			return plot
 		}
 		if wikiCtx.Err() != nil {
@@ -41,47 +45,38 @@ func ScrapeWikiPlot(ctx context.Context, client *Client, userAgent, title string
 		}
 	}
 
-	if resolved := resolveWikiPage(wikiCtx, client, userAgent, title, year); resolved != "" {
-		return fetchWikiSummary(wikiCtx, client, userAgent, resolved, year)
+	if resolved := searchWikiPage(wikiCtx, client, userAgent, title, year); resolved != "" {
+		return fetchWikiPagePlot(wikiCtx, client, userAgent, resolved, year)
 	}
 	return ""
 }
 
-func fetchWikiSummary(ctx context.Context, client *Client, userAgent, pageTitle string, year int) string {
-	summaryURL := fmt.Sprintf(
-		"https://en.wikipedia.org/api/rest_v1/page/summary/%s",
-		strings.ReplaceAll(pageTitle, " ", "_"),
-	)
+func fetchWikiPagePlot(ctx context.Context, client *Client, userAgent, pageTitle string, year int) string {
+	slug := strings.ReplaceAll(pageTitle, " ", "_")
+	pageURL := "https://en.wikipedia.org/wiki/" + url.PathEscape(slug)
 
-	resp, err := client.Get(ctx, userAgent, summaryURL)
+	page, err := fetchPage(ctx, client, userAgent, pageURL)
 	if err != nil {
 		return ""
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return ""
+	for _, m := range wikiParaRE.FindAllStringSubmatch(page, -1) {
+		text := stripHTML(m[1])
+		if text == "" || strings.HasPrefix(text, "Coordinates:") {
+			continue
+		}
+		if !looksLikeFilmPlot(text, year) {
+			continue
+		}
+		if len(text) > 280 {
+			text = text[:277] + "..."
+		}
+		return text
 	}
-
-	var summary struct {
-		Extract string `json:"extract"`
-		Type    string `json:"type"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&summary); err != nil {
-		return ""
-	}
-	if summary.Type == "disambiguation" || !looksLikeFilmPlot(summary.Extract, year) {
-		return ""
-	}
-
-	plot := summary.Extract
-	if len(plot) > 280 {
-		plot = plot[:277] + "..."
-	}
-	return plot
+	return ""
 }
 
-func resolveWikiPage(ctx context.Context, client *Client, userAgent, title string, year int) string {
+func searchWikiPage(ctx context.Context, client *Client, userAgent, title string, year int) string {
 	terms := []string{}
 	if year > 0 {
 		terms = append(terms, fmt.Sprintf("%s (%d film)", title, year))
@@ -92,34 +87,24 @@ func resolveWikiPage(ctx context.Context, client *Client, userAgent, title strin
 		if ctx.Err() != nil {
 			return ""
 		}
-		wikiURL := fmt.Sprintf(
-			"https://en.wikipedia.org/w/api.php?action=opensearch&search=%s&limit=3&namespace=0&format=json",
-			url.QueryEscape(term),
-		)
-		resp, err := client.Get(ctx, userAgent, wikiURL)
+		searchURL := "https://en.wikipedia.org/w/index.php?search=" + url.QueryEscape(term)
+		page, err := fetchPage(ctx, client, userAgent, searchURL)
 		if err != nil {
 			continue
 		}
 
-		var result []interface{}
-		decodeErr := json.NewDecoder(resp.Body).Decode(&result)
-		resp.Body.Close()
-		if decodeErr != nil || len(result) < 2 {
+		m := wikiSearchRE.FindStringSubmatch(page)
+		if len(m) < 2 {
 			continue
 		}
-
-		titles, ok := result[1].([]interface{})
-		if !ok {
+		pageTitle := strings.TrimPrefix(m[1], "/wiki/")
+		pageTitle, _ = url.PathUnescape(pageTitle)
+		pageTitle = strings.ReplaceAll(pageTitle, "_", " ")
+		if strings.Contains(strings.ToLower(pageTitle), "disambiguation") {
 			continue
 		}
-		for _, t := range titles {
-			page, ok := t.(string)
-			if !ok || strings.Contains(strings.ToLower(page), "disambiguation") {
-				continue
-			}
-			if plot := fetchWikiSummary(ctx, client, userAgent, page, year); plot != "" {
-				return page
-			}
+		if plot := fetchWikiPagePlot(ctx, client, userAgent, pageTitle, year); plot != "" {
+			return pageTitle
 		}
 	}
 	return ""

@@ -3,6 +3,8 @@ package app
 import (
 	"context"
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -14,6 +16,10 @@ import (
 
 func Run(ctx context.Context, opts Options) error {
 	cfg, err := agent.LoadConfig(opts.Config)
+	if err != nil {
+		return err
+	}
+	cfg, err = selectAgents(cfg, opts)
 	if err != nil {
 		return err
 	}
@@ -44,8 +50,34 @@ func Run(ctx context.Context, opts Options) error {
 		enrichPlots(ctx, pool, results)
 	}
 
-	printResults(results, start, len(cfg.Agents))
+	if opts.Output != "" {
+		if err := writeJSONResults(opts.Output, results, start); err != nil {
+			return err
+		}
+	} else {
+		printResults(results, start, len(cfg.Agents))
+	}
 	return nil
+}
+
+func selectAgents(cfg agent.Config, opts Options) (agent.Config, error) {
+	if opts.AgentID != "" {
+		return agent.FilterByID(cfg, opts.AgentID)
+	}
+	idx := opts.AgentIndex
+	if idx < 0 {
+		if v := strings.TrimSpace(os.Getenv("JOB_COMPLETION_INDEX")); v != "" {
+			var err error
+			idx, err = strconv.Atoi(v)
+			if err != nil {
+				return agent.Config{}, fmt.Errorf("JOB_COMPLETION_INDEX: %w", err)
+			}
+		}
+	}
+	if idx >= 0 {
+		return agent.FilterByIndex(cfg, idx)
+	}
+	return cfg, nil
 }
 
 func runAllAgents(ctx context.Context, opts Options, pool *proxy.ClientPool, cfg agent.Config, docket proxy.Docket) ([]agent.Result, error) {

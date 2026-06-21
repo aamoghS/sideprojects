@@ -2,95 +2,49 @@ package scraper
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/url"
 	"strings"
 	"sync"
 )
 
-type redditSearchResponse struct {
-	Data struct {
-		Children []struct {
-			Data struct {
-				ID    string `json:"id"`
-				Title string `json:"title"`
-			} `json:"data"`
-		} `json:"children"`
-	} `json:"data"`
-}
-
-type redditCommentsResponse []struct {
-	Data struct {
-		Children []struct {
-			Data struct {
-				Body  string `json:"body"`
-				Score int    `json:"score"`
-			} `json:"data"`
-		} `json:"children"`
-	} `json:"data"`
-}
-
 type redditThread struct {
-	ID    string
-	Title string
-}
-
-func redditBlocked(status int) bool {
-	return status == http.StatusForbidden || status == http.StatusTooManyRequests
-}
-
-func searchRedditSub(ctx context.Context, client *Client, userAgent, sub, query string) (redditThread, error) {
-	if ctx.Err() != nil {
-		return redditThread{}, ctx.Err()
-	}
-
-	searchURL := fmt.Sprintf(
-		"https://www.reddit.com/r/%s/search.json?q=%s&restrict_sr=on&sort=comments&t=all&limit=5",
-		sub, url.QueryEscape(query),
-	)
-
-	resp, err := client.Get(ctx, userAgent, searchURL)
-	if err != nil {
-		return redditThread{}, err
-	}
-	defer resp.Body.Close()
-
-	if redditBlocked(resp.StatusCode) {
-		return redditThread{}, fmt.Errorf("reddit blocked (%d)", resp.StatusCode)
-	}
-	if resp.StatusCode != http.StatusOK {
-		return redditThread{}, fmt.Errorf("reddit status %d", resp.StatusCode)
-	}
-
-	var result redditSearchResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return redditThread{}, err
-	}
-
-	for _, child := range result.Data.Children {
-		title := strings.ToLower(child.Data.Title)
-		if strings.Contains(title, "series") || strings.Contains(title, "tv show") {
-			continue
-		}
-		return redditThread{ID: child.Data.ID, Title: child.Data.Title}, nil
-	}
-	return redditThread{}, fmt.Errorf("no thread in r/%s for %q", sub, query)
+	ID        string
+	Title     string
+	Subreddit string
 }
 
 type RedditInput struct {
-	UserAgent  string
-	Subreddits []string
-	Queries    []string
-	Limit      int
+	UserAgent     string
+	Subreddits    []string
+	Queries       []string
+	Limit         int
+	Discover      bool
+	MaxSubreddits int
+	MaxThreads    int
 }
 
 func ScrapeReddit(ctx context.Context, client *Client, in RedditInput) []Movie {
 	if client.RedditBlocked.Load() || ctx.Err() != nil {
 		return nil
 	}
+	if in.Discover {
+		return scrapeRedditDiscover(ctx, client, in)
+	}
+	return scrapeRedditFixed(ctx, client, in)
+}
 
+func searchRedditSubWithSub(ctx context.Context, client *Client, userAgent, sub, query string) (redditThread, error) {
+	th, err := searchRedditSub(ctx, client, userAgent, sub, query)
+	if err != nil {
+		return th, err
+	}
+	if th.Subreddit == "" {
+		th.Subreddit = normalizeSub(sub)
+	}
+	return th, nil
+}
+
+func scrapeRedditFixed(ctx context.Context, client *Client, in RedditInput) []Movie {
 	type searchTask struct {
 		sub   string
 		query string
@@ -124,7 +78,7 @@ func ScrapeReddit(ctx context.Context, client *Client, in RedditInput) []Movie {
 				return
 			}
 
-			thread, err := searchRedditSub(searchCtx, client, in.UserAgent, t.sub, t.query)
+			thread, err := searchRedditSubWithSub(searchCtx, client, in.UserAgent, t.sub, t.query)
 			if err != nil {
 				if strings.Contains(err.Error(), "reddit blocked") {
 					client.RedditBlocked.Store(true)
@@ -156,8 +110,9 @@ func ScrapeReddit(ctx context.Context, client *Client, in RedditInput) []Movie {
 	}
 
 	type threadResult struct {
-		movies []Movie
-		title  string
+		movies    []Movie
+		title     string
+		subreddit string
 	}
 	threadCh := make(chan threadResult, len(threads))
 
@@ -166,8 +121,8 @@ func ScrapeReddit(ctx context.Context, client *Client, in RedditInput) []Movie {
 		scrapeWg.Add(1)
 		go func(th redditThread) {
 			defer scrapeWg.Done()
-			found := scrapeRedditThread(ctx, client, in.UserAgent, th.ID, in.Limit*2)
-			threadCh <- threadResult{movies: found, title: th.Title}
+			found, _ := scrapeRedditThreadLearn(ctx, client, in.UserAgent, th.ID, in.Limit*2)
+			threadCh <- threadResult{movies: found, title: th.Title, subreddit: th.Subreddit}
 		}(thread)
 	}
 
@@ -185,7 +140,7 @@ func ScrapeReddit(ctx context.Context, client *Client, in RedditInput) []Movie {
 				continue
 			}
 			seen[key] = true
-			m.Source = fmt.Sprintf("reddit (%s)", tr.title)
+			m.Source = formatRedditSource(tr.title, tr.subreddit)
 			movies = append(movies, m)
 			if len(movies) >= in.Limit {
 				return movies
@@ -196,44 +151,13 @@ func ScrapeReddit(ctx context.Context, client *Client, in RedditInput) []Movie {
 }
 
 func scrapeRedditThread(ctx context.Context, client *Client, userAgent, threadID string, limit int) []Movie {
-	commentsURL := fmt.Sprintf("https://www.reddit.com/comments/%s.json?sort=top&limit=40", threadID)
-	resp, err := client.Get(ctx, userAgent, commentsURL)
-	if err != nil {
-		return nil
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil
-	}
-
-	var comments redditCommentsResponse
-	if err := json.NewDecoder(resp.Body).Decode(&comments); err != nil || len(comments) < 2 {
-		return nil
-	}
-
-	var movies []Movie
-	seen := make(map[string]bool)
-
-	for _, child := range comments[1].Data.Children {
-		body := strings.TrimSpace(child.Data.Body)
-		score := child.Data.Score
-		if body == "" || body == "[deleted]" || body == "[removed]" || score < 3 {
-			continue
-		}
-
-		for _, movie := range parseMoviesFromComment(body) {
-			key := movieKey(movie.Title, movie.Year)
-			if seen[key] {
-				continue
-			}
-			seen[key] = true
-			movie.Score = score
-			movies = append(movies, movie)
-			if len(movies) >= limit {
-				return movies
-			}
-		}
-	}
+	movies, _ := scrapeRedditThreadLearn(ctx, client, userAgent, threadID, limit)
 	return movies
+}
+
+func formatRedditSource(threadTitle, subreddit string) string {
+	if subreddit != "" {
+		return fmt.Sprintf("reddit (r/%s: %s)", subreddit, threadTitle)
+	}
+	return fmt.Sprintf("reddit (%s)", threadTitle)
 }

@@ -15,7 +15,7 @@ type Analyzer struct {
 // NewAnalyzer creates a new SEO analyzer
 func NewAnalyzer() *Analyzer {
 	return &Analyzer{
-		client: &http.Client{},
+		client: HTTPClientFromEnv(),
 	}
 }
 
@@ -37,6 +37,7 @@ type AnalysisResult struct {
 	ExternalLinks     int
 	WordCount         int
 	Issues            []string
+	Fixes             []Fix
 	Score             int
 }
 
@@ -78,235 +79,15 @@ func (a *Analyzer) Analyze(url string) (*AnalysisResult, error) {
 		return nil, fmt.Errorf("failed to parse HTML: %w", err)
 	}
 
-	result := &AnalysisResult{
-		URL:    url,
-		Issues: []string{},
-		H1Tags: []string{},
-		Score:  100,
-	}
-
-	// Analyze title
-	titleNode := findFirstTag(doc, "title")
-	var title string
-	if titleNode != nil {
-		title = strings.TrimSpace(titleNode.textContent())
-	}
-	result.Title = title
-	result.TitleLength = len(title)
-	if result.TitleLength == 0 {
-		result.Issues = append(result.Issues, "Missing title tag")
-		result.Score -= 15
-	} else if result.TitleLength < 30 {
-		result.Issues = append(result.Issues, "Title too short (less than 30 characters)")
-		result.Score -= 10
-	} else if result.TitleLength > 60 {
-		result.Issues = append(result.Issues, "Title too long (more than 60 characters)")
-		result.Score -= 10
-	}
-
-	// Analyze meta description
-	desc := doc.findMetaByName("description")
-	result.MetaDescription = desc
-	result.DescriptionLength = len(desc)
-	if result.DescriptionLength == 0 {
-		result.Issues = append(result.Issues, "Missing meta description")
-		result.Score -= 15
-	} else if result.DescriptionLength < 120 {
-		result.Issues = append(result.Issues, "Meta description too short (less than 120 characters)")
-		result.Score -= 5
-	} else if result.DescriptionLength > 160 {
-		result.Issues = append(result.Issues, "Meta description too long (more than 160 characters)")
-		result.Score -= 5
-	}
-
-	// Check viewport meta
-	result.HasViewportMeta = doc.findMetaByName("viewport") != ""
-	if !result.HasViewportMeta {
-		result.Issues = append(result.Issues, "Missing viewport meta tag (important for mobile)")
-		result.Score -= 10
-	}
-
-	// Check Open Graph
-	result.HasOpenGraph = doc.findMetaByProperty("og:")
-	if !result.HasOpenGraph {
-		result.Issues = append(result.Issues, "Missing Open Graph tags")
-		result.Score -= 5
-	}
-
-	// Check Twitter Card
-	result.HasTwitterCard = doc.findMetaByName("twitter:card") != ""
-	if !result.HasTwitterCard {
-		result.Issues = append(result.Issues, "Missing Twitter Card meta tags")
-		result.Score -= 3
-	}
-
-	// Check canonical URL
-	result.CanonicalURL = doc.findLinkByRel("canonical")
-
-	// Analyze H1 tags
-	h1Elements := doc.findElements("h1")
-	for _, h1 := range h1Elements {
-		text := strings.TrimSpace(h1.textContent())
-		if text != "" {
-			result.H1Tags = append(result.H1Tags, text)
-		}
-	}
-	if len(result.H1Tags) == 0 {
-		result.Issues = append(result.Issues, "No H1 tag found")
-		result.Score -= 15
-	} else if len(result.H1Tags) > 1 {
-		result.Issues = append(result.Issues, fmt.Sprintf("Multiple H1 tags found (%d)", len(result.H1Tags)))
-		result.Score -= 10
-	}
-
-	// Analyze images
-	result.ImageCount, result.ImagesWithAlt = doc.findImages()
-	if result.ImageCount > 0 && result.ImagesWithAlt < result.ImageCount {
-		missing := result.ImageCount - result.ImagesWithAlt
-		result.Issues = append(result.Issues, fmt.Sprintf("%d images missing alt text", missing))
-		result.Score -= 5
-	}
-
-	// Extract hostname for link analysis
-	host := url
-	if idx := strings.Index(url, "://"); idx > 0 {
-		host = url[idx+3:]
-	}
-	if idx := strings.Index(host, "/"); idx > 0 {
-		host = host[:idx]
-	}
-
-	// Analyze links
-	result.InternalLinks, result.ExternalLinks = doc.findLinks(host)
-
-	// Count words in body
-	body := findFirstTag(doc, "body")
-	if body != nil {
-		result.WordCount = body.wordCount()
-		if result.WordCount < 300 {
-			result.Issues = append(result.Issues, fmt.Sprintf("Low word count (%d words, recommended: 300+)", result.WordCount))
-			result.Score -= 5
-		}
-	}
-
-	if result.Score < 0 {
-		result.Score = 0
-	}
-
-	return result, nil
+	return analyzeDocument(doc, url), nil
 }
 
-// AnalyzeWithReader performs SEO analysis on HTML content directly
 func (a *Analyzer) AnalyzeWithReader(r io.Reader, url string) (*AnalysisResult, error) {
 	doc, err := NewDocumentFromReader(r)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse HTML: %w", err)
 	}
-
-	result := &AnalysisResult{
-		URL:    url,
-		Issues: []string{},
-		H1Tags: []string{},
-		Score:  100,
-	}
-
-	// Analyze title
-	titleNode := findFirstTag(doc, "title")
-	var title string
-	if titleNode != nil {
-		title = strings.TrimSpace(titleNode.textContent())
-	}
-	result.Title = title
-	result.TitleLength = len(title)
-	if result.TitleLength == 0 {
-		result.Issues = append(result.Issues, "Missing title tag")
-		result.Score -= 15
-	} else if result.TitleLength < 30 {
-		result.Issues = append(result.Issues, "Title too short (less than 30 characters)")
-		result.Score -= 10
-	} else if result.TitleLength > 60 {
-		result.Issues = append(result.Issues, "Title too long (more than 60 characters)")
-		result.Score -= 10
-	}
-
-	// Analyze meta description
-	desc := doc.findMetaByName("description")
-	result.MetaDescription = desc
-	result.DescriptionLength = len(desc)
-	if result.DescriptionLength == 0 {
-		result.Issues = append(result.Issues, "Missing meta description")
-		result.Score -= 15
-	} else if result.DescriptionLength < 120 {
-		result.Issues = append(result.Issues, "Meta description too short (less than 120 characters)")
-		result.Score -= 5
-	} else if result.DescriptionLength > 160 {
-		result.Issues = append(result.Issues, "Meta description too long (more than 160 characters)")
-		result.Score -= 5
-	}
-
-	// Check viewport meta
-	result.HasViewportMeta = doc.findMetaByName("viewport") != ""
-	if !result.HasViewportMeta {
-		result.Issues = append(result.Issues, "Missing viewport meta tag (important for mobile)")
-		result.Score -= 10
-	}
-
-	// Check Open Graph
-	result.HasOpenGraph = doc.findMetaByProperty("og:")
-	if !result.HasOpenGraph {
-		result.Issues = append(result.Issues, "Missing Open Graph tags")
-		result.Score -= 5
-	}
-
-	// Check Twitter Card
-	result.HasTwitterCard = doc.findMetaByName("twitter:card") != ""
-	if !result.HasTwitterCard {
-		result.Issues = append(result.Issues, "Missing Twitter Card meta tags")
-		result.Score -= 3
-	}
-
-	// Check canonical URL
-	result.CanonicalURL = doc.findLinkByRel("canonical")
-
-	// Analyze H1 tags
-	h1Elements := doc.findElements("h1")
-	for _, h1 := range h1Elements {
-		text := strings.TrimSpace(h1.textContent())
-		if text != "" {
-			result.H1Tags = append(result.H1Tags, text)
-		}
-	}
-	if len(result.H1Tags) == 0 {
-		result.Issues = append(result.Issues, "No H1 tag found")
-		result.Score -= 15
-	} else if len(result.H1Tags) > 1 {
-		result.Issues = append(result.Issues, fmt.Sprintf("Multiple H1 tags found (%d)", len(result.H1Tags)))
-		result.Score -= 10
-	}
-
-	// Analyze images
-	result.ImageCount, result.ImagesWithAlt = doc.findImages()
-	if result.ImageCount > 0 && result.ImagesWithAlt < result.ImageCount {
-		missing := result.ImageCount - result.ImagesWithAlt
-		result.Issues = append(result.Issues, fmt.Sprintf("%d images missing alt text", missing))
-		result.Score -= 5
-	}
-
-	// Count words in body
-	body := findFirstTag(doc, "body")
-	if body != nil {
-		result.WordCount = body.wordCount()
-		if result.WordCount < 300 {
-			result.Issues = append(result.Issues, fmt.Sprintf("Low word count (%d words, recommended: 300+)", result.WordCount))
-			result.Score -= 5
-		}
-	}
-
-	if result.Score < 0 {
-		result.Score = 0
-	}
-
-	return result, nil
+	return analyzeDocument(doc, url), nil
 }
 
 // PrintResult prints the analysis in a readable format
@@ -346,5 +127,13 @@ func PrintResult(r *AnalysisResult) {
 		}
 	} else {
 		fmt.Println("No issues found!")
+	}
+
+	if len(r.Fixes) > 0 {
+		fmt.Printf("\nRecommended fixes (%d, +%d pts potential):\n", len(r.Fixes), TotalFixImpact(r.Fixes))
+		for i, fix := range r.Fixes {
+			fmt.Printf("  %d. [%s] %s\n", i+1, strings.ToUpper(fix.Priority), fix.Issue)
+			fmt.Printf("     %s\n", fix.Action)
+		}
 	}
 }

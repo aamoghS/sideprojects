@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: seo-urls
+  namespace: crawl
+data:
+  urls.txt: |
+    https://example.com/
+    https://example.com/about
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seo-audit
+  namespace: crawl
+spec:
+  completionMode: Indexed
+  completions: 3
+  parallelism: 3
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: seotool
+          image: seotool:latest
+          imagePullPolicy: IfNotPresent
+          args:
+            - "batch"
+            - "--urls-file=/config/urls.txt"
+            - "--output=/out/results.jsonl"
+          env:
+            - name: HTTP_PROXY
+              value: "http://movie-proxy:8888"
+            - name: HTTPS_PROXY
+              value: "http://movie-proxy:8888"
+            - name: JOB_COMPLETION_COUNT
+              value: "3"
+          volumeMounts:
+            - name: urls
+              mountPath: /config
+            - name: out
+              mountPath: /out
+      volumes:
+        - name: urls
+          configMap:
+            name: seo-urls
+        - name: out
+          emptyDir: {}

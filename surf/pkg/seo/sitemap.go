@@ -153,7 +153,7 @@ func NewSitemapGenerator(base string, maxDepth int) (*SitemapGenerator, error) {
 
 	return &SitemapGenerator{
 		baseURL:  u,
-		client:   &http.Client{},
+		client:   HTTPClientFromEnv(),
 		visited:  make(map[string]bool),
 		urls:     []string{},
 		maxDepth: maxDepth,

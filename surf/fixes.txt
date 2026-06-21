@@ -1,0 +1,16 @@
+Site average score: 80/100 across 1 URLs
+
+Prioritized fix plan (do these in order):
+------------------------------------------------------------------------
+1. [HIGH] No H1 tag found (1 pages, +15 pts each)
+   Action: Add exactly one H1 that states the page topic; match it closely to the title.
+   Example URLs: https://aamogh.vercel.app/
+
+2. [HIGH] Missing canonical URL (1 pages, +10 pts each)
+   Action: Add <link rel="canonical" href="PAGE_URL"> pointing to the preferred URL for this page.
+   Example URLs: https://aamogh.vercel.app/
+
+3. [LOW] Low word count (0 words, recommended: 300+) (1 pages, +5 pts each)
+   Action: Expand thin pages with useful, unique copy that answers the search intent.
+   Example URLs: https://aamogh.vercel.app/
+
