@@ -12,14 +12,19 @@ Good for learning the control plane on any machine with Docker installed.
 
 ```bash
 cd plate
-go build -o plate.exe ./cmd/plate
+chmod +x run.sh          # once
+./run.sh                 # build + serve on :8080
+./run.sh create --name crawl-1 --plan medium
+./run.sh list
+```
 
-./plate.exe serve --provider docker --listen :8080
-./plate.exe create --name crawl-1 --plan medium
-./plate.exe list
-./plate.exe stop --id <id>
-./plate.exe start --id <id>
-./plate.exe delete --id <id>
+Optional: `cp plate.env.example plate.env` to set provider, listen addr, proxmox creds.
+
+Manual build:
+
+```bash
+go build -o plate ./cmd/plate
+./plate serve --provider docker --listen :8080
 ```
 
 Plans: `tiny`, `small`, `medium`, `large` (CPU/RAM/disk).

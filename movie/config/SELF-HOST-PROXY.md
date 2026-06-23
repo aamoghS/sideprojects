@@ -174,12 +174,14 @@ go run ./cmd/movie-finder -proxy http://dev:secret@127.0.0.1:8888 -test-proxies
 
 ## Environment reference (edgeproxy)
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `PROXY_ADDR` | `0.0.0.0:8888` | Listen address |
-| `PROXY_USER` | (required) | Basic auth username |
-| `PROXY_PASS` | (required) | Basic auth password |
-| `ALLOW_INSECURE` | `false` | Set `true` to allow no auth (local dev only) |
+
+| Variable         | Default        | Purpose                                      |
+| ---------------- | -------------- | -------------------------------------------- |
+| `PROXY_ADDR`     | `0.0.0.0:8888` | Listen address                               |
+| `PROXY_USER`     | (required)     | Basic auth username                          |
+| `PROXY_PASS`     | (required)     | Basic auth password                          |
+| `ALLOW_INSECURE` | `false`        | Set `true` to allow no auth (local dev only) |
+
 
 Health check: `GET /health` returns `200` with body `ok` (no auth required).
 
@@ -193,9 +195,12 @@ Health check: `GET /health` returns `200` with body `ok` (no auth required).
 
 ## Troubleshooting
 
-| Symptom | Fix |
-|---------|-----|
-| `PROXY_USER and PROXY_PASS are required` | Set both in `.env` or export before starting edgeproxy |
-| `407 Proxy Authentication Required` | Wrong user/pass in movie-finder URL |
-| Connection timeout | Check VPS firewall, security groups, and that edgeproxy is listening on `0.0.0.0:8888` |
-| Test OK but slow scrapes | VPS egress may be rate-limited by Reddit; try fewer workers |
+
+| Symptom                                  | Fix                                                                                    |
+| ---------------------------------------- | -------------------------------------------------------------------------------------- |
+| `PROXY_USER and PROXY_PASS are required` | Set both in `.env` or export before starting edgeproxy                                 |
+| `407 Proxy Authentication Required`      | Wrong user/pass in movie-finder URL                                                    |
+| Connection timeout                       | Check VPS firewall, security groups, and that edgeproxy is listening on `0.0.0.0:8888` |
+| Test OK but slow scrapes                 | VPS egress may be rate-limited by Reddit; try fewer workers                            |
+
+
