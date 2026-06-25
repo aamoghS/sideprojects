@@ -1,0 +1,76 @@
+Global AI Agent Skills & Extensions Installed:
+
+1. graphify-windows (Custom Skill)
+   - Source/GitHub: https://github.com/safishamsi/graphify
+
+2. codegraph (MCP Server / Extension)
+   - Source/GitHub: https://github.com/colbymchenry/codegraph
+
+---
+
+WISHLIST / NEXT STEPS (Real Skills from https://awesome-copilot.github.com/skills/):
+
+--- CATEGORY 1: Data Science & Machine Learning ---
+
+3. dataverse-python-production-code
+   - Teaches the AI production-quality Python patterns for data science:
+     proper error handling, logging, testing, and clean data pipeline code.
+   - GitHub: https://github.com/github/awesome-copilot/tree/main/skills/dataverse-python-production-code
+
+4. sql-optimization
+   - The AI always knows how to analyze and rewrite slow SQL queries,
+     add proper indexes, and avoid N+1 patterns — critical for DS work.
+   - GitHub: https://github.com/github/awesome-copilot/tree/main/skills/sql-optimization
+
+5. sql-code-review
+   - Reviews SQL for correctness, performance, and security issues.
+   - GitHub: https://github.com/github/awesome-copilot/tree/main/skills/sql-code-review
+
+6. bigquery-pipeline-audit
+   - Audits BigQuery data pipelines for cost, performance, and correctness.
+   - GitHub: https://github.com/github/awesome-copilot/tree/main/skills/bigquery-pipeline-audit
+
+--- CATEGORY 2: Software Engineering Best Practices (Senior Engineer Mindset) ---
+
+7. architecture-blueprint-generator
+   - Generates full architecture blueprints for any system. The AI thinks
+     through components, data flows, and trade-offs like a senior architect.
+   - GitHub: https://github.com/github/awesome-copilot/tree/main/skills/architecture-blueprint-generator
+
+8. create-architectural-decision-record
+   - The AI writes proper ADRs (Architecture Decision Records) — documents
+     the why behind technical choices, just like a senior engineer would.
+   - GitHub: https://github.com/github/awesome-copilot/tree/main/skills/create-architectural-decision-record
+
+9. breakdown-epic-arch
+   - Breaks down large engineering epics into architectural tasks with
+     system design considerations at each step.
+   - GitHub: https://github.com/github/awesome-copilot/tree/main/skills/breakdown-epic-arch
+
+10. refactor
+    - The AI knows how to safely refactor code: reduce complexity, improve
+      readability, and preserve behavior with a disciplined approach.
+    - GitHub: https://github.com/github/awesome-copilot/tree/main/skills/refactor
+
+11. cloud-design-patterns
+    - Teaches the AI all major cloud design patterns (Circuit Breaker, Saga,
+      CQRS, etc.) so it recommends the right pattern for the right problem.
+    - GitHub: https://github.com/github/awesome-copilot/tree/main/skills/cloud-design-patterns
+
+--- CATEGORY 3: Token Saving ---
+
+12. what-context-needed
+    - Before doing ANY task, the AI explicitly asks: "what context do I
+      actually need?" — stops it from loading everything blindly.
+    - GitHub: https://github.com/github/awesome-copilot/tree/main/skills/what-context-needed
+
+13. mini-context-graph
+    - Builds a minimal dependency map of just the files needed for a task,
+      so the AI only loads what's relevant instead of the whole codebase.
+    - GitHub: https://github.com/github/awesome-copilot/tree/main/skills/mini-context-graph
+
+14. prompt-optimizer
+    - Rewrites your prompts to be more concise and effective, reducing
+      wasted tokens on vague or redundant instructions.
+    - GitHub: https://github.com/github/awesome-copilot/tree/main/skills/prompt-optimizer
+
