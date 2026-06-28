@@ -11,10 +11,10 @@ import (
 	"syscall"
 	"time"
 
-	relayv1 "relay/gen/relay/v1"
-	"relay/internal/client"
-	"relay/internal/server"
-	"relay/internal/store"
+	relayv1 "github.com/aamoghS/sideprojects/relay/gen/relay/v1"
+	"github.com/aamoghS/sideprojects/relay/internal/client"
+	"github.com/aamoghS/sideprojects/relay/internal/server"
+	"github.com/aamoghS/sideprojects/relay/internal/store"
 )
 
 const defaultAddr = ":50051"

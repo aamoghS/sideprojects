@@ -3,10 +3,10 @@ package http
 import (
 	"testing"
 
-	"minstd/bufio"
-	"minstd/io"
-	"minstd/net"
-	"minstd/strings"
+	"github.com/aamoghS/sideprojects/minstd/bufio"
+	"github.com/aamoghS/sideprojects/minstd/io"
+	"github.com/aamoghS/sideprojects/minstd/net"
+	"github.com/aamoghS/sideprojects/minstd/strings"
 )
 
 func TestServerGET(t *testing.T) {

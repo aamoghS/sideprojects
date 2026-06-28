@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	hotwirev1 "hotwire/proto/hotwire/v1"
+	hotwirev1 "github.com/aamoghS/sideprojects/hotwire/proto/hotwire/v1"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

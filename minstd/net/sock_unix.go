@@ -3,7 +3,7 @@
 package net
 
 import (
-	"minstd/errors"
+	"github.com/aamoghS/sideprojects/minstd/errors"
 	"syscall"
 )
 

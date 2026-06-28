@@ -6,9 +6,9 @@ import (
 	"io"
 	"time"
 
-	"hotwire/internal/client"
-	hotwirev1 "hotwire/proto/hotwire/v1"
-	"simhttp"
+	"github.com/aamoghS/sideprojects/hotwire/internal/client"
+	hotwirev1 "github.com/aamoghS/sideprojects/hotwire/proto/hotwire/v1"
+	"github.com/aamoghS/sideprojects/simhttp"
 )
 
 type Config struct {

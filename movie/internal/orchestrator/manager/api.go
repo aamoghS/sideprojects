@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"movie/internal/orchestrator/task"
+	"github.com/aamoghS/sideprojects/movie/internal/orchestrator/task"
 
 	"github.com/google/uuid"
 )

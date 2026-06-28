@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"hotwire/internal/client"
-	hotwirev1 "hotwire/proto/hotwire/v1"
+	"github.com/aamoghS/sideprojects/hotwire/internal/client"
+	hotwirev1 "github.com/aamoghS/sideprojects/hotwire/proto/hotwire/v1"
 )
 
 type Route struct {

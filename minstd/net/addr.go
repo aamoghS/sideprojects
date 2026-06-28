@@ -1,9 +1,9 @@
 package net
 
 import (
-	"minstd/errors"
-	"minstd/strconv"
-	"minstd/strings"
+	"github.com/aamoghS/sideprojects/minstd/errors"
+	"github.com/aamoghS/sideprojects/minstd/strconv"
+	"github.com/aamoghS/sideprojects/minstd/strings"
 )
 
 type tcpAddr struct {

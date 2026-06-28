@@ -31,7 +31,7 @@ func looksLikeMovieSub(name, title, desc string) bool {
 	name = strings.ToLower(name)
 	text := strings.ToLower(title + " " + desc)
 	cues := []string{
-		"movie", "film", "cinema", "horror", "scifi", "sci-fi", "action",
+		"github.com/aamoghS/sideprojects/movie", "film", "cinema", "horror", "scifi", "sci-fi", "action",
 		"comedy", "drama", "thriller", "documentary", "criterion", "flicks",
 		"boxoffice", "marvel", "netflix", "watch", "screen", "director",
 	}
@@ -68,7 +68,7 @@ func recommendationTitle(title string) bool {
 			return true
 		}
 	}
-	return strings.Contains(title, "movie")
+	return strings.Contains(title, "github.com/aamoghS/sideprojects/movie")
 }
 
 func scrapeRedditDiscover(ctx context.Context, client *Client, in RedditInput) []Movie {

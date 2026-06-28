@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"movie/internal/agent"
-	"movie/internal/proxy"
-	"movie/internal/scraper"
+	"github.com/aamoghS/sideprojects/movie/internal/agent"
+	"github.com/aamoghS/sideprojects/movie/internal/proxy"
+	"github.com/aamoghS/sideprojects/movie/internal/scraper"
 )
 
 func Run(ctx context.Context, opts Options) error {

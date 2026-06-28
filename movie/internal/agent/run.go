@@ -3,7 +3,7 @@ package agent
 import (
 	"context"
 
-	"movie/internal/scraper"
+	"github.com/aamoghS/sideprojects/movie/internal/scraper"
 )
 
 func Run(ctx context.Context, client *scraper.Client, a Agent) Result {

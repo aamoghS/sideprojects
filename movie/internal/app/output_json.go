@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"movie/internal/agent"
+	"github.com/aamoghS/sideprojects/movie/internal/agent"
 )
 
 type jsonMovie struct {

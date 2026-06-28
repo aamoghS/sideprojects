@@ -3,8 +3,8 @@ package simhttp
 import (
 	"math/rand"
 
-	"minstd/atomic"
-	"minstd/chrono"
+	"github.com/aamoghS/sideprojects/minstd/atomic"
+	"github.com/aamoghS/sideprojects/minstd/chrono"
 )
 
 type Latency struct {

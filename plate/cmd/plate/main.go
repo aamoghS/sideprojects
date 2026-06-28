@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	"plate/internal/api"
-	"plate/internal/control"
-	"plate/internal/plate"
-	"plate/internal/store"
-	"plate/internal/vm"
+	"github.com/aamoghS/sideprojects/plate/internal/api"
+	"github.com/aamoghS/sideprojects/plate/internal/control"
+	"github.com/aamoghS/sideprojects/plate/internal/plate"
+	"github.com/aamoghS/sideprojects/plate/internal/store"
+	"github.com/aamoghS/sideprojects/plate/internal/vm"
 )
 
 func main() {

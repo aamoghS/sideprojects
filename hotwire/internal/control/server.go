@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	hotwirev1 "hotwire/proto/hotwire/v1"
+	hotwirev1 "github.com/aamoghS/sideprojects/hotwire/proto/hotwire/v1"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

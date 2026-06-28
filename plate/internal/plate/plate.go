@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"plate/internal/provider"
-	"plate/internal/provider/docker"
-	"plate/internal/provider/proxmox"
+	"github.com/aamoghS/sideprojects/plate/internal/provider"
+	"github.com/aamoghS/sideprojects/plate/internal/provider/docker"
+	"github.com/aamoghS/sideprojects/plate/internal/provider/proxmox"
 )
 
 func OpenBackend(name, dockerImage string) (provider.Backend, string, error) {

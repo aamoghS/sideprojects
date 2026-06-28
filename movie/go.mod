@@ -1,4 +1,4 @@
-module movie
+module github.com/aamoghS/sideprojects/movie
 
 go 1.25.0
 

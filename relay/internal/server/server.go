@@ -5,8 +5,8 @@ import (
 	"io"
 	"net"
 
-	relayv1 "relay/gen/relay/v1"
-	"relay/internal/store"
+	relayv1 "github.com/aamoghS/sideprojects/relay/gen/relay/v1"
+	"github.com/aamoghS/sideprojects/relay/internal/store"
 
 	"google.golang.org/grpc"
 )

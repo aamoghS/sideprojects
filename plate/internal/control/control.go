@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"plate/internal/plans"
-	"plate/internal/provider"
-	"plate/internal/store"
-	"plate/internal/vm"
+	"github.com/aamoghS/sideprojects/plate/internal/plans"
+	"github.com/aamoghS/sideprojects/plate/internal/provider"
+	"github.com/aamoghS/sideprojects/plate/internal/store"
+	"github.com/aamoghS/sideprojects/plate/internal/vm"
 )
 
 type Plane struct {

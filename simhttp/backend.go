@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"minstd/chrono"
+	"github.com/aamoghS/sideprojects/minstd/chrono"
 )
 
 type Duration = chrono.Duration

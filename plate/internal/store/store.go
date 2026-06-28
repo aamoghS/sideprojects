@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"plate/internal/vm"
+	"github.com/aamoghS/sideprojects/plate/internal/vm"
 )
 
 type Store struct {

@@ -3,8 +3,8 @@
 package net
 
 import (
-	"minstd/errors"
-	"minstd/sync"
+	"github.com/aamoghS/sideprojects/minstd/errors"
+	"github.com/aamoghS/sideprojects/minstd/sync"
 	"syscall"
 	"unsafe"
 )

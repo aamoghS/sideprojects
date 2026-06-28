@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	relayv1 "relay/gen/relay/v1"
+	relayv1 "github.com/aamoghS/sideprojects/relay/gen/relay/v1"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

@@ -1,6 +1,6 @@
 package main
 
-import "github.com/bootcamp/simplijobs/cmd"
+import "github.com/aamoghS/sideprojects/ideas/simplijobs/cmd"
 
 func main() {
 	cmd.Execute()

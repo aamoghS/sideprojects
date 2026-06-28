@@ -1,6 +1,6 @@
 package sync
 
-import "minstd/atomic"
+import "github.com/aamoghS/sideprojects/minstd/atomic"
 
 type Mutex struct {
 	locked uint32

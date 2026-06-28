@@ -11,12 +11,12 @@ import (
 	"syscall"
 	"time"
 
-	"hotwire/internal/agent"
-	"hotwire/internal/client"
-	"hotwire/internal/control"
-	"hotwire/internal/demo"
-	"hotwire/internal/proxy"
-	hotwirev1 "hotwire/proto/hotwire/v1"
+	"github.com/aamoghS/sideprojects/hotwire/internal/agent"
+	"github.com/aamoghS/sideprojects/hotwire/internal/client"
+	"github.com/aamoghS/sideprojects/hotwire/internal/control"
+	"github.com/aamoghS/sideprojects/hotwire/internal/demo"
+	"github.com/aamoghS/sideprojects/hotwire/internal/proxy"
+	hotwirev1 "github.com/aamoghS/sideprojects/hotwire/proto/hotwire/v1"
 
 	"google.golang.org/grpc"
 )

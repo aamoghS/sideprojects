@@ -1,10 +1,10 @@
 package simhttp
 
 import (
-	"minstd/atomic"
-	"minstd/chrono"
-	"minstd/math"
-	"minstd/sync"
+	"github.com/aamoghS/sideprojects/minstd/atomic"
+	"github.com/aamoghS/sideprojects/minstd/chrono"
+	"github.com/aamoghS/sideprojects/minstd/math"
+	"github.com/aamoghS/sideprojects/minstd/sync"
 )
 
 const maxLatencySamples = 256

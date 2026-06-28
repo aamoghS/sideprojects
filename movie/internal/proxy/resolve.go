@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	"movie/internal/agent"
+	"github.com/aamoghS/sideprojects/movie/internal/agent"
 )
 
 func Resolve(a agent.Agent, agentIdx int, cfg agent.Config, docket Docket, flagProxy string) (string, error) {

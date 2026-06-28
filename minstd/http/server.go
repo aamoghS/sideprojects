@@ -3,9 +3,9 @@ package http
 import (
 	"context"
 
-	"minstd/chrono"
-	"minstd/errors"
-	"minstd/net"
+	"github.com/aamoghS/sideprojects/minstd/chrono"
+	"github.com/aamoghS/sideprojects/minstd/errors"
+	"github.com/aamoghS/sideprojects/minstd/net"
 )
 
 var ErrServerClosed = errors.New("http: server closed")

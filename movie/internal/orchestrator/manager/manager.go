@@ -3,8 +3,8 @@ package manager
 import (
 	"fmt"
 
-	"movie/internal/orchestrator/task"
-	"movie/internal/orchestrator/worker"
+	"github.com/aamoghS/sideprojects/movie/internal/orchestrator/task"
+	"github.com/aamoghS/sideprojects/movie/internal/orchestrator/worker"
 
 	"github.com/google/uuid"
 )

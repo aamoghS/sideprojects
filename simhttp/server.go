@@ -6,8 +6,8 @@ import (
 	"log"
 	"math/rand"
 
-	"minstd/chrono"
-	"minstd/http"
+	"github.com/aamoghS/sideprojects/minstd/chrono"
+	"github.com/aamoghS/sideprojects/minstd/http"
 )
 
 type Server struct {

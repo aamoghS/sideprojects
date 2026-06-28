@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bootcamp/simplijobs/internal/fetcher"
-	"github.com/bootcamp/simplijobs/internal/models"
+	"github.com/aamoghS/sideprojects/ideas/simplijobs/internal/fetcher"
+	"github.com/aamoghS/sideprojects/ideas/simplijobs/internal/models"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 )

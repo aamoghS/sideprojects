@@ -1,6 +1,6 @@
 package bufio
 
-import "minstd/io"
+import "github.com/aamoghS/sideprojects/minstd/io"
 
 type Reader struct {
 	src io.Reader

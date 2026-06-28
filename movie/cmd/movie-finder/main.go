@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"movie/internal/app"
+	"github.com/aamoghS/sideprojects/movie/internal/app"
 )
 
 func main() {

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"hotwire/internal/control"
+	"github.com/aamoghS/sideprojects/hotwire/internal/control"
 )
 
 func TestRegistryStaleDetection(t *testing.T) {

@@ -3,7 +3,7 @@ package simhttp
 import (
 	"testing"
 
-	"minstd/chrono"
+	"github.com/aamoghS/sideprojects/minstd/chrono"
 )
 
 func TestPercentile(t *testing.T) {

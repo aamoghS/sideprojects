@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bootcamp/simplijobs/internal/store"
+	"github.com/aamoghS/sideprojects/ideas/simplijobs/internal/store"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 )

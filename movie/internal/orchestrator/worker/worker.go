@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"movie/internal/orchestrator/task"
+	"github.com/aamoghS/sideprojects/movie/internal/orchestrator/task"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"

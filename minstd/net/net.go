@@ -1,6 +1,6 @@
 package net
 
-import "minstd/errors"
+import "github.com/aamoghS/sideprojects/minstd/errors"
 
 var ErrClosed = errors.New("use of closed network connection")
 

@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"movie/internal/orchestrator/manager"
-	"movie/internal/orchestrator/worker"
+	"github.com/aamoghS/sideprojects/movie/internal/orchestrator/manager"
+	"github.com/aamoghS/sideprojects/movie/internal/orchestrator/worker"
 )
 
 func main() {

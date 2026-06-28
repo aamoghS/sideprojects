@@ -1,4 +1,4 @@
-module bookRoom
+module github.com/aamoghS/sideprojects/bookRoom/golang
 
 go 1.24.4
 

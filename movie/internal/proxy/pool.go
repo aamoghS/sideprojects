@@ -3,7 +3,7 @@ package proxy
 import (
 	"sync"
 
-	"movie/internal/scraper"
+	"github.com/aamoghS/sideprojects/movie/internal/scraper"
 )
 
 type ClientPool struct {

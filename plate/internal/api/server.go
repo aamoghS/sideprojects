@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"plate/internal/control"
-	"plate/internal/plans"
-	"plate/internal/vm"
+	"github.com/aamoghS/sideprojects/plate/internal/control"
+	"github.com/aamoghS/sideprojects/plate/internal/plans"
+	"github.com/aamoghS/sideprojects/plate/internal/vm"
 )
 
 type Server struct {

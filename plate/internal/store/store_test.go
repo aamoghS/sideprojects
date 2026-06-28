@@ -3,7 +3,7 @@ package store
 import (
 	"testing"
 
-	"plate/internal/vm"
+	"github.com/aamoghS/sideprojects/plate/internal/vm"
 )
 
 func TestStorePutGet(t *testing.T) {

@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"movie/internal/proxy/server"
+	"github.com/aamoghS/sideprojects/movie/internal/proxy/server"
 )
 
 func main() {

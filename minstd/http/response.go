@@ -1,8 +1,8 @@
 package http
 
 import (
-	"minstd/net"
-	"minstd/strconv"
+	"github.com/aamoghS/sideprojects/minstd/net"
+	"github.com/aamoghS/sideprojects/minstd/strconv"
 )
 
 type ResponseWriter interface {

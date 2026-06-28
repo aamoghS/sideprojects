@@ -1,4 +1,4 @@
-module relay
+module github.com/aamoghS/sideprojects/relay
 
 go 1.24
 

@@ -1,7 +1,7 @@
-module simhttp
+module github.com/aamoghS/sideprojects/simhttp
 
 go 1.22
 
-require minstd v0.0.0
+require github.com/aamoghS/sideprojects/minstd v0.0.0
 
-replace minstd => ../minstd
+replace github.com/aamoghS/sideprojects/minstd => ../minstd

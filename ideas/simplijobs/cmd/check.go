@@ -5,11 +5,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/bootcamp/simplijobs/internal/display"
-	"github.com/bootcamp/simplijobs/internal/fetcher"
-	"github.com/bootcamp/simplijobs/internal/filter"
-	"github.com/bootcamp/simplijobs/internal/models"
-	"github.com/bootcamp/simplijobs/internal/store"
+	"github.com/aamoghS/sideprojects/ideas/simplijobs/internal/display"
+	"github.com/aamoghS/sideprojects/ideas/simplijobs/internal/fetcher"
+	"github.com/aamoghS/sideprojects/ideas/simplijobs/internal/filter"
+	"github.com/aamoghS/sideprojects/ideas/simplijobs/internal/models"
+	"github.com/aamoghS/sideprojects/ideas/simplijobs/internal/store"
 	"github.com/spf13/cobra"
 )
 

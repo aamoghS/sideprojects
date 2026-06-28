@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bootcamp/simplijobs/internal/models"
+	"github.com/aamoghS/sideprojects/ideas/simplijobs/internal/models"
 )
 
 // Source URLs for the SimplifyJobs GitHub repositories.

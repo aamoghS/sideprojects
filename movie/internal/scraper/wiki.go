@@ -116,7 +116,7 @@ func looksLikeFilmPlot(extract string, year int) bool {
 		return false
 	}
 	filmCue := strings.Contains(lower, "film") ||
-		strings.Contains(lower, "movie") ||
+		strings.Contains(lower, "github.com/aamoghS/sideprojects/movie") ||
 		strings.Contains(lower, "directed by") ||
 		strings.Contains(lower, "animated")
 	if !filmCue {

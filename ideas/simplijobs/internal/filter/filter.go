@@ -4,7 +4,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bootcamp/simplijobs/internal/models"
+	"github.com/aamoghS/sideprojects/ideas/simplijobs/internal/models"
 )
 
 // MatchesCompany returns true if the listing's company name contains the query (case-insensitive).

@@ -1,4 +1,4 @@
-module github.com/bootcamp/simplijobs
+module github.com/aamoghS/sideprojects/ideas/simplijobs
 
 go 1.24.4
 

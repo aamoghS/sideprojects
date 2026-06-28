@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"movie/internal/agent"
-	"movie/internal/proxy"
+	"github.com/aamoghS/sideprojects/movie/internal/agent"
+	"github.com/aamoghS/sideprojects/movie/internal/proxy"
 )
 
 func printBanner(opts Options, cfg agent.Config, docket proxy.Docket) {

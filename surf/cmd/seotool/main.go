@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aamogh/seotool/pkg/seo"
+	"github.com/aamoghS/sideprojects/surf/pkg/seo"
 )
 
 func main() {
