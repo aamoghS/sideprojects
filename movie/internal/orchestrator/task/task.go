@@ -2,9 +2,6 @@ package task
 
 import (
 	"time"
-
-	"github.com/docker/go-connections/nat"
-	"github.com/google/uuid"
 )
 
 type State int
@@ -19,13 +16,13 @@ const (
 
 // Task represents a unit of work (a container) to be scheduled and run.
 type Task struct {
-	ID            uuid.UUID
+	ID            string
 	Name          string
 	State         State
 	Image         string
 	Memory        int64
 	Disk          int64
-	ExposedPorts  nat.PortSet
+	ExposedPorts  map[string]struct{}
 	PortBindings  map[string]string
 	RestartPolicy string
 	StartTime     time.Time
@@ -34,7 +31,7 @@ type Task struct {
 
 // TaskEvent represents a state change for a task.
 type TaskEvent struct {
-	ID        uuid.UUID
+	ID        string
 	State     State
 	Timestamp time.Time
 	Task      Task

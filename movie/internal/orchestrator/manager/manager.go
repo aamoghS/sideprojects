@@ -5,18 +5,16 @@ import (
 
 	"github.com/aamoghS/sideprojects/movie/internal/orchestrator/task"
 	"github.com/aamoghS/sideprojects/movie/internal/orchestrator/worker"
-
-	"github.com/google/uuid"
 )
 
 // Manager represents the control plane of our orchestrator.
 type Manager struct {
 	Pending       chan task.Task
-	TaskDb        map[uuid.UUID]*task.Task
-	EventDb       map[uuid.UUID]*task.TaskEvent
+	TaskDb        map[string]*task.Task
+	EventDb       map[string]*task.TaskEvent
 	Workers       []string
-	WorkerTaskMap map[string][]uuid.UUID
-	TaskWorkerMap map[uuid.UUID]string
+	WorkerTaskMap map[string][]string
+	TaskWorkerMap map[string]string
 	WorkerNodes   map[string]*worker.Worker
 }
 
@@ -24,10 +22,10 @@ type Manager struct {
 func NewManager() *Manager {
 	return &Manager{
 		Pending:       make(chan task.Task, 100),
-		TaskDb:        make(map[uuid.UUID]*task.Task),
-		EventDb:       make(map[uuid.UUID]*task.TaskEvent),
-		WorkerTaskMap: make(map[string][]uuid.UUID),
-		TaskWorkerMap: make(map[uuid.UUID]string),
+		TaskDb:        make(map[string]*task.Task),
+		EventDb:       make(map[string]*task.TaskEvent),
+		WorkerTaskMap: make(map[string][]string),
+		TaskWorkerMap: make(map[string]string),
 		WorkerNodes:   make(map[string]*worker.Worker),
 	}
 }

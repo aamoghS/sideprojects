@@ -1,22 +1,17 @@
 package worker
 
 import (
-	"context"
 	"fmt"
+	"os/exec"
 
 	"github.com/aamoghS/sideprojects/movie/internal/orchestrator/task"
-
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
-	"github.com/google/uuid"
 )
 
 // Worker represents a node in our orchestrator that can run tasks.
 type Worker struct {
 	Name      string
 	Queue     chan task.Task
-	Db        map[uuid.UUID]*task.Task
+	Db        map[string]*task.Task
 	TaskCount int
 }
 
@@ -25,44 +20,42 @@ func NewWorker(name string) *Worker {
 	return &Worker{
 		Name:  name,
 		Queue: make(chan task.Task, 10),
-		Db:    make(map[uuid.UUID]*task.Task),
+		Db:    make(map[string]*task.Task),
 	}
 }
 
-// RunTask starts a task using Docker.
+// RunTask starts a task as a local process.
 func (w *Worker) RunTask(t task.Task) error {
 	w.Db[t.ID] = &t
 	w.TaskCount++
 
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		return fmt.Errorf("failed to create docker client: %w", err)
-	}
-
-	ctx := context.Background()
-
-	// Pull the image (simplified)
-	_, err = cli.ImagePull(ctx, t.Image, types.ImagePullOptions{})
-	if err != nil {
-		return fmt.Errorf("failed to pull image: %w", err)
-	}
-
-	// Create the container
-	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		Image: t.Image,
-	}, nil, nil, nil, t.Name)
-	if err != nil {
-		return fmt.Errorf("failed to create container: %w", err)
-	}
-
-	// Start the container
-	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
-		return fmt.Errorf("failed to start container: %w", err)
+	// In our in-house orchestrator, 'Image' represents the binary or command to run.
+	cmd := exec.Command(t.Image)
+	
+	// Start the process
+	if err := cmd.Start(); err != nil {
+		t.State = task.Failed
+		w.Db[t.ID] = &t
+		return fmt.Errorf("failed to start process: %w", err)
 	}
 
 	t.State = task.Running
 	w.Db[t.ID] = &t
+	
+	fmt.Printf("Worker %s successfully started task %s (PID %d)\n", w.Name, t.ID, cmd.Process.Pid)
 
-	fmt.Printf("Worker %s successfully started task %s (container %s)\n", w.Name, t.ID, resp.ID)
+	// Wait for process to finish asynchronously
+	go func() {
+		err := cmd.Wait()
+		if err != nil {
+			fmt.Printf("Task %s failed: %v\n", t.ID, err)
+			t.State = task.Failed
+		} else {
+			fmt.Printf("Task %s completed successfully\n", t.ID)
+			t.State = task.Completed
+		}
+		w.Db[t.ID] = &t
+	}()
+
 	return nil
 }
