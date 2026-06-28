@@ -16,9 +16,10 @@ spec:
     spec:
       containers:
       - name: movie-finder
-        image: movie-finder:latest
+        image: movie-app:latest
         imagePullPolicy: Never # Use local image
         command:
+        - /app/movie-finder
         - -config
         - /app/config/agents.json
         - -proxy-docket

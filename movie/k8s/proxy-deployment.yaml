@@ -16,8 +16,9 @@ spec:
     spec:
       containers:
       - name: proxy-server
-        image: movie-proxy:latest
+        image: movie-app:latest
         imagePullPolicy: Never # Use local image for minikube/kind
+        command: ["/app/edgeproxy"]
         ports:
         - containerPort: 8888
         env:

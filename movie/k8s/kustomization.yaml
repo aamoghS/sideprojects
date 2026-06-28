@@ -5,6 +5,8 @@ resources:
   - proxy-deployment.yaml
   - proxy-service.yaml
   - movie-finder-deployment.yaml
+  - orchestrator-deployment.yaml
+  - orchestrator-service.yaml
 
 configMapGenerator:
   - name: movie-config

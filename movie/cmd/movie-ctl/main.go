@@ -22,7 +22,11 @@ func main() {
 			os.Exit(1)
 		}
 
-		resp, err := http.Post("http://127.0.0.1:5555/tasks", "application/json", bytes.NewBuffer(fileContent))
+		baseURL := os.Getenv("ORCHESTRATOR_URL")
+		if baseURL == "" {
+			baseURL = "http://127.0.0.1:5555"
+		}
+		resp, err := http.Post(baseURL+"/tasks", "application/json", bytes.NewBuffer(fileContent))
 		if err != nil {
 			fmt.Printf("Failed to connect to orchestrator API: %v\n", err)
 			os.Exit(1)
