@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proxy-server
+  labels:
+    app: proxy-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: proxy-server
+  template:
+    metadata:
+      labels:
+        app: proxy-server
+    spec:
+      containers:
+      - name: proxy-server
+        image: movie-proxy:latest
+        imagePullPolicy: Never # Use local image for minikube/kind
+        ports:
+        - containerPort: 8888
+        env:
+        - name: PROXY_ADDR
+          value: "0.0.0.0:8888"
+        # In a real setup, use a Secret for PROXY_USER and PROXY_PASS
+        - name: PROXY_USER
+          value: ""
+        - name: PROXY_PASS
+          value: ""
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8888
+          initialDelaySeconds: 5
+          periodSeconds: 30

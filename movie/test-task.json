@@ -1,0 +1,4 @@
+{
+    "Name": "test-nginx",
+    "Image": "nginx:latest"
+}

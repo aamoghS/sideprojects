@@ -58,3 +58,16 @@ func (m *Manager) AddWorker(name string, w *worker.Worker) {
 	m.Workers = append(m.Workers, name)
 	m.WorkerNodes[name] = w
 }
+
+// Start runs the scheduler loop, constantly looking for pending tasks to assign.
+func (m *Manager) Start() {
+	fmt.Println("Manager starting scheduler loop...")
+	for t := range m.Pending {
+		workerName := m.SelectWorker()
+		if workerName != "" {
+			m.SendWork(workerName, t)
+		} else {
+			fmt.Println("No available workers for task", t.ID)
+		}
+	}
+}

@@ -2,13 +2,9 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"movie/internal/orchestrator/manager"
-	"movie/internal/orchestrator/task"
 	"movie/internal/orchestrator/worker"
-
-	"github.com/google/uuid"
 )
 
 func main() {
@@ -32,19 +28,13 @@ func main() {
 		}
 	}()
 
-	// Create a dummy task
-	t1 := task.Task{
-		ID:    uuid.New(),
-		Name:  "my-postgres",
-		Image: "postgres:13",
-		State: task.Pending,
+	// Start Manager scheduler loop
+	go m.Start()
+
+	// Start the API Server to receive Task definitions
+	api := manager.Api{
+		Port:    5555,
+		Manager: m,
 	}
-
-	// Manager schedules the task
-	workerName := m.SelectWorker()
-	m.SendWork(workerName, t1)
-
-	// Wait a bit to observe output
-	time.Sleep(5 * time.Second)
-	fmt.Println("Orchestrator shutting down.")
+	api.Start() // This blocks forever
 }
