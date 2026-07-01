@@ -1,8 +1,4 @@
+venv/
 .venv/
 __pycache__/
-*.pyc
-artifacts/
-data/*.csv
-data/*.parquet
-.pytest_cache/
-*.egg-info/
+*.pkl

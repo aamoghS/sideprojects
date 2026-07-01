@@ -1,0 +1,94 @@
+{
+  "extra_trees_randomized": {
+    "clf__n_estimators": 100,
+    "clf__min_samples_split": 10,
+    "clf__min_samples_leaf": 8,
+    "clf__max_features": 0.7,
+    "clf__max_depth": null,
+    "clf__class_weight": null,
+    "clf__bootstrap": false
+  },
+  "lgbm_f1_optuna": {
+    "n_estimators": 105,
+    "max_depth": 9,
+    "num_leaves": 12,
+    "learning_rate": 0.22038218939289875,
+    "scale_pos_weight": 2.0351199264000677
+  },
+  "lgbm_optuna": {
+    "n_estimators": 369,
+    "max_depth": 3,
+    "num_leaves": 125,
+    "learning_rate": 0.16967533607196555,
+    "min_child_samples": 25,
+    "subsample": 0.5909124836035503,
+    "colsample_bytree": 0.5917022549267169,
+    "reg_alpha": 5.472429642032198e-06,
+    "reg_lambda": 0.00052821153945323
+  },
+  "lgbm_optuna_pruned": {
+    "n_estimators": 666,
+    "max_depth": 6,
+    "num_leaves": 19,
+    "learning_rate": 0.1024932221692416,
+    "min_child_samples": 47,
+    "subsample": 0.5610191174223894,
+    "colsample_bytree": 0.7475884550556351
+  },
+  "lgbm_randomized": {
+    "clf__subsample": 0.8,
+    "clf__scale_pos_weight": 1,
+    "clf__reg_lambda": 0.1,
+    "clf__reg_alpha": 1.0,
+    "clf__num_leaves": 16,
+    "clf__n_estimators": 200,
+    "clf__min_child_samples": 10,
+    "clf__max_depth": 3,
+    "clf__learning_rate": 0.2,
+    "clf__colsample_bytree": 0.6
+  },
+  "rf_grid": {
+    "clf__class_weight": null,
+    "clf__max_depth": 20,
+    "clf__max_features": 0.5,
+    "clf__min_samples_leaf": 2,
+    "clf__min_samples_split": 10,
+    "clf__n_estimators": 300
+  },
+  "rf_halving": {
+    "clf__n_estimators": 500,
+    "clf__min_samples_split": 5,
+    "clf__min_samples_leaf": 8,
+    "clf__max_features": "log2",
+    "clf__max_depth": 30,
+    "clf__class_weight": null,
+    "clf__bootstrap": false
+  },
+  "rf_optuna_extra_trees": {
+    "n_estimators": 62,
+    "max_depth": 25,
+    "min_samples_split": 13,
+    "min_samples_leaf": 4,
+    "max_features": 0.5,
+    "variant": "extra_trees"
+  },
+  "rf_randomized": {
+    "clf__n_estimators": 50,
+    "clf__min_samples_split": 5,
+    "clf__min_samples_leaf": 2,
+    "clf__max_features": 0.5,
+    "clf__max_depth": 15,
+    "clf__class_weight": null,
+    "clf__bootstrap": false
+  },
+  "rf_threshold_tuned": {
+    "clf__n_estimators": 50,
+    "clf__min_samples_split": 5,
+    "clf__min_samples_leaf": 2,
+    "clf__max_features": 0.5,
+    "clf__max_depth": 15,
+    "clf__class_weight": null,
+    "clf__bootstrap": false,
+    "decision_threshold": 0.3900000000000001
+  }
+}
