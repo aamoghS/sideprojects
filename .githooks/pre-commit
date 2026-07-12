@@ -1,0 +1,36 @@
+#!/bin/sh
+# Block commits from Cursor agent sessions.
+# Only aamoghS commits manually from an external terminal.
+#
+# Human override (aamoghS only - agents must never set this):
+#   ALLOW_HUMAN_COMMIT=1 git commit --trailer "Co-authored-by: Cursor <cursoragent@cursor.com>" -m "..."
+
+if [ "$ALLOW_HUMAN_COMMIT" = "1" ]; then
+	exit 0
+fi
+
+if [ -n "$CURSOR_TRACE_ID" ] || [ -n "$CURSOR_AGENT" ] || [ -n "$CURSOR_SESSION_ID" ]; then
+	echo "pre-commit: blocked - Cursor agent/automation context detected." >&2
+	echo "pre-commit: only aamoghS may commit, manually from an external terminal." >&2
+	echo "pre-commit: do not use Cursor agents to create commits." >&2
+	echo "pre-commit: aamoghS may override with: ALLOW_HUMAN_COMMIT=1 git commit --trailer "Co-authored-by: Cursor <cursoragent@cursor.com>"" >&2
+	exit 1
+fi
+
+if [ -n "$AGENT_TRANSCRIPTS" ]; then
+	echo "pre-commit: blocked - AGENT_TRANSCRIPTS is set (Cursor agent session)." >&2
+	echo "pre-commit: only aamoghS may commit, manually from an external terminal." >&2
+	echo "pre-commit: do not use Cursor agents to create commits." >&2
+	echo "pre-commit: aamoghS may override with: ALLOW_HUMAN_COMMIT=1 git commit --trailer "Co-authored-by: Cursor <cursoragent@cursor.com>"" >&2
+	exit 1
+fi
+
+if env | grep -q '^CURSOR_'; then
+	echo "pre-commit: blocked - CURSOR_* environment variable(s) detected." >&2
+	echo "pre-commit: only aamoghS may commit, manually from an external terminal." >&2
+	echo "pre-commit: do not use Cursor agents to create commits." >&2
+	echo "pre-commit: aamoghS may override with: ALLOW_HUMAN_COMMIT=1 git commit --trailer "Co-authored-by: Cursor <cursoragent@cursor.com>"" >&2
+	exit 1
+fi
+
+exit 0
