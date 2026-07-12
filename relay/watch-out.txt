@@ -1,1 +1,0 @@
-05:05:30.295 [35mlogs[0m #0 stream test
