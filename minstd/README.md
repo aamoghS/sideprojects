@@ -1,8 +1,8 @@
 # minstd
 
-Small stdlib shims used by `simhttp`. Each package covers one gap; nothing here is meant to be a full replacement.
+Small stdlib shims used by `simhttp`. Each package covers one gap in the standard library — `atomic`, `sync`, `math`, `chrono`, `strings`, `io`, `bufio`, `net`, `strconv`, `errors`, `http` — without trying to be a full replacement.
 
-Packages: `atomic`, `sync`, `math`, `chrono`, `strings`, `io`, `bufio`, `net`, `strconv`, `errors`, `http`.
+Started as copy-paste from experiments that needed slightly different HTTP or timing behavior than `net/http` gives you out of the box.
 
 Local monorepo:
 

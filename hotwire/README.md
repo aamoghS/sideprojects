@@ -2,7 +2,9 @@
 
 Control plane that scores backends on latency and error rate, then pushes routing weights to proxies over gRPC streams.
 
-Backends run `simhttp` and report metrics on a bidi stream. Proxies subscribe to weight updates and pick backends probabilistically.
+Backends run `simhttp` and report metrics on a bidirectional stream. Proxies subscribe to weight updates and pick backends probabilistically. Stale backends (no report for >3s) get weight 0.
+
+The `demo` command starts the control plane, a few fake backends with different latency profiles, and a proxy on one port — useful for watching weights shift as you tweak backend behavior.
 
 ## Run
 
@@ -27,13 +29,11 @@ go run ./cmd/hotwire watch
 - `SubscribeWeights` (server stream): routing table fanout
 - `ListBackends` (unary): snapshot
 
-Stale backends (>3s without a report) get weight 0.
-
 ## Proto regen
 
 ```powershell
-protoc --go_out=. --go_opt=paths=source_relative `
-  --go-grpc_out=. --go-grpc_opt=paths=source_relative `
+protoc --go_out=. --go_opt=module=github.com/aamoghS/sideprojects/hotwire \
+  --go-grpc_out=. --go-grpc_opt=module=github.com/aamoghS/sideprojects/hotwire \
   proto/hotwire/v1/hotwire.proto
 ```
 

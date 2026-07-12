@@ -3,11 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -33,16 +34,24 @@ type BookingConfig struct {
 	UserLastName string
 }
 
+func requireEnv(key string) string {
+	val := os.Getenv(key)
+	if val == "" {
+		log.Fatalf("missing required environment variable %s", key)
+	}
+	return val
+}
+
 func main() {
 	config := BookingConfig{
-		Username:     "asawant43",
-		Password:     "XboxRiya2016#",
+		Username:     requireEnv("GT_USERNAME"),
+		Password:     requireEnv("GT_PASSWORD"),
 		RoomID:       "158675",                                         // Clough 342
 		StartTime:    "14:00",                                          // 2:00 PM
 		EndTime:      "15:45",                                          // 3:45 PM
 		BookingDate:  time.Now().AddDate(0, 0, 1).Format("2006-01-02"), // Tomorrow
-		StudentID:    "904011773",
-		UserLastName: "Sawant",
+		StudentID:    requireEnv("GT_STUDENT_ID"),
+		UserLastName: requireEnv("GT_USER_LAST_NAME"),
 	}
 
 	// Initialize HTTP client with cookie jar
@@ -101,7 +110,7 @@ func getCSRFToken(client *http.Client) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", fmt.Errorf("failed to read login page: %w", err)
 	}
@@ -175,7 +184,7 @@ func getSlotChecksum(client *http.Client, roomID, date, startTime string) (strin
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", fmt.Errorf("failed to read availability response: %w", err)
 	}
@@ -217,7 +226,7 @@ func submitBooking(client *http.Client, roomID, date, startTime, checksum string
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", fmt.Errorf("failed to read booking response: %w", err)
 	}

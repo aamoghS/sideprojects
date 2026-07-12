@@ -272,14 +272,58 @@ func (n *Node) getAttr(key string) string {
 	return ""
 }
 
+func isHiddenTextElement(tag string) bool {
+	return tag == "script" || tag == "style"
+}
+
+func hasLeadingSpace(s string) bool {
+	if s == "" {
+		return false
+	}
+	return unicode.IsSpace(rune(s[0]))
+}
+
+func hasTrailingSpace(s string) bool {
+	if s == "" {
+		return false
+	}
+	return unicode.IsSpace(rune(s[len(s)-1]))
+}
+
 // textContent returns all text content from a node and its children
 func (n *Node) textContent() string {
 	if n.Type == TextNode {
 		return n.Data
 	}
+	if n.Type == ElementNode && isHiddenTextElement(n.Data) {
+		return ""
+	}
+
 	var sb strings.Builder
+	var lastEndedWithSpace bool
+	var lastWasElementWithText bool
+
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		sb.WriteString(c.textContent())
+		if c.Type == ElementNode && isHiddenTextElement(c.Data) {
+			continue
+		}
+
+		part := c.textContent()
+		if part == "" {
+			continue
+		}
+
+		if sb.Len() > 0 {
+			needsSpace := !lastEndedWithSpace && !hasLeadingSpace(part) &&
+				(lastWasElementWithText || c.Type == ElementNode)
+			if needsSpace {
+				sb.WriteByte(' ')
+			}
+		}
+
+		sb.WriteString(part)
+		lastEndedWithSpace = hasTrailingSpace(part)
+		lastWasElementWithText = c.Type == ElementNode
 	}
 	return sb.String()
 }

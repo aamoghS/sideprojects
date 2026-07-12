@@ -2,3 +2,11 @@ node_modules/
 .env
 .DS_Store
 *.log
+*.exe
+__pycache__/
+*.pyc
+optimization/artifacts/
+research/catboost_info/
+research/*.joblib
+
+.githooks/

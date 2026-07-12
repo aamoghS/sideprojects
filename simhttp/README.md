@@ -1,6 +1,6 @@
 # simhttp
 
-Fake HTTP backend for load tests. Configurable latency, jitter, and error rate. Tracks p50/p99, error rate, inflight, and RPS.
+Fake HTTP backend for load tests. You configure latency, jitter, and error rate per instance; it serves a simple handler and tracks p50/p99, error rate, inflight requests, and RPS. `hotwire` backends wrap this and stream the snapshots to the control plane.
 
 Depends on `minstd` for HTTP and timing primitives.
 

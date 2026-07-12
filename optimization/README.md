@@ -1,6 +1,8 @@
 # Random Forest & LightGBM optimization lab
 
-Train deliberately weak tree models (~60% accuracy), then improve them with hyperparameter tuning and different RF variants.
+Hyperparameter tuning playground on the UCI Adult income dataset. The pipeline deliberately starts with weak tree models (~60% accuracy) — shallow trees, few features, skewed class weights — so tuning has room to show improvement instead of starting at 76% from majority-class guessing.
+
+Then it runs a catalog of search methods (randomized search, grid search, successive halving, Optuna with pruning, threshold sweeps) across Random Forest and LightGBM variants and compares the results side by side.
 
 All Python — no API layer, no Docker.
 
