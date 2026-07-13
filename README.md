@@ -30,7 +30,25 @@ Minimal VPS control plane. Run `plate serve` on a host; create VMs through an HT
 
 `./run.sh` in `plate/` for the Docker quick start.
 
+### [ipv1](ipv1/)
+
+Toy flat-address UDP protocol. Names like `1` and `host-3` instead of dotted quads; a JSON registry resolves them to endpoints. Joke "IPv1" for dev lab networks — plate's `ippool` still owns real IPv4.
+
+`go build -o ipv1.exe ./cmd/ipv1 && ./ipv1.exe listen 1`
+
 ## Tools
+
+### [slugcheck](slugcheck/)
+
+Reads a site's `sitemap.xml`, follows redirects, and flags slug collisions — multiple sitemap URLs that land on the same final page — plus chains that bounce too many times. Complements `surf`'s on-page SEO checks with URL hygiene.
+
+`go build -o slugcheck.exe . && ./slugcheck.exe https://example.com`
+
+### [redban](redban/)
+
+Token-bucket rate limiter with state on disk. Wrap Reddit fetches so `movie` agents don't burn through the unauthenticated quota in one run.
+
+`go build -o redban.exe . && ./redban.exe -- curl -s "https://old.reddit.com/..."`
 
 ### [surf](surf/)
 
@@ -72,11 +90,19 @@ RF and LightGBM hyperparameter tuning lab on the UCI Adult income dataset. Delib
 
 `python -m src.main all` after `pip install -r requirements.txt`
 
+`calibrate.py` — given a saved `*.joblib` pipeline and a CSV, print binned predicted vs actual rates (Brier + ECE). Quick sanity check after tuning.
+
+`python calibrate.py artifacts/baseline_rf.joblib adult.csv --target class`
+
 ### [research](research/)
 
 ML experiments around concept drift and adaptive retraining. Synthetic fraud datasets (banking, ecommerce, crypto, insurance) with an incremental retraining pipeline that shadow-deploys candidate models and compares model families in benchmark shootouts.
 
 See `train.py`, `run_benchmark.py`, `run_model_shootout.py`.
+
+`ks_gaps.py` — two-sample KS distance between any two numeric columns in a CSV. Handy for spotting when a feature distribution drifts away from training data.
+
+`python ks_gaps.py paysim.csv amount oldbalanceOrg`
 
 ## Misc
 

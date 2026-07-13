@@ -17,8 +17,8 @@ func TestAnalyzer_AnalyzeHTML(t *testing.T) {
 			html: `<!DOCTYPE html>
 <html>
 <head>
-	<title>Perfect Page Title Here</title>
-	<meta name="description" content="This is a perfect meta description that has just the right amount of content for SEO purposes.">
+	<title>Perfect Page Title For SEO Testing</title>
+	<meta name="description" content="This is a perfect meta description that has just the right amount of content for SEO purposes and exceeds one hundred twenty characters easily.">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta property="og:title" content="Perfect Page Title Here">
 	<meta property="og:description" content="This is a perfect meta description">
@@ -28,9 +28,7 @@ func TestAnalyzer_AnalyzeHTML(t *testing.T) {
 </head>
 <body>
 	<h1>This Is The Main Heading</h1>
-	<p>First paragraph with lots of content. This is the first paragraph with lots of content. This is the first paragraph with lots of content.</p>
-	<p>Second paragraph with lots of content. This is the second paragraph with lots of content. This is the second paragraph with lots of content.</p>
-	<p>Third paragraph with lots of content. This is the third paragraph with lots of content. This is the third paragraph with lots of content.</p>
+` + strings.Repeat("<p>content word sentence phrase paragraph text block section article body copy filler material sample data example string token.</p>", 35) + `
 	<img src="img1.jpg" alt="Descriptive alt text">
 	<img src="img2.jpg" alt="Another descriptive alt">
 	<a href="/page1">Internal Link 1</a>
@@ -43,8 +41,8 @@ func TestAnalyzer_AnalyzeHTML(t *testing.T) {
 				if r.Score != 100 {
 					t.Errorf("Score = %d, want 100", r.Score)
 				}
-				if r.Title != "Perfect Page Title Here" {
-					t.Errorf("Title = %q, want %q", r.Title, "Perfect Page Title Here")
+				if r.Title != "Perfect Page Title For SEO Testing" {
+					t.Errorf("Title = %q, want %q", r.Title, "Perfect Page Title For SEO Testing")
 				}
 				if len(r.H1Tags) != 1 {
 					t.Errorf("H1 count = %d, want 1", len(r.H1Tags))
@@ -81,8 +79,18 @@ func TestAnalyzer_AnalyzeHTML(t *testing.T) {
 			html: `<!DOCTYPE html><html><head><title>Short</title></head><body></body></html>`,
 			url:  "https://example.com",
 			check: func(t *testing.T, r *AnalysisResult) {
-				if r.TitleLength < 30 {
-					t.Errorf("TitleLength = %d, want >= 30", r.TitleLength)
+				if r.TitleLength >= 30 {
+					t.Errorf("TitleLength = %d, want < 30", r.TitleLength)
+				}
+				found := false
+				for _, issue := range r.Issues {
+					if strings.Contains(issue, "Title too short") {
+						found = true
+						break
+					}
+				}
+				if !found {
+					t.Error("expected title too short issue")
 				}
 			},
 		},
@@ -139,7 +147,7 @@ func TestAnalysisResult_ScoreCalculation(t *testing.T) {
 		{"no issues", []string{}, 100},
 		{"one issue -15", []string{"Missing title tag"}, 85},
 		{"multiple issues", []string{"Missing title tag", "Missing meta description", "No H1 tag found"}, 55},
-		{"over 100 deduction", []string{"Missing title tag", "Missing meta description", "No H1 tag found", "Missing viewport meta tag"}, 40},
+		{"over 100 deduction", []string{"Missing title tag", "Missing meta description", "No H1 tag found", "Missing viewport meta tag"}, 45},
 		{"all issues", []string{
 			"Missing title tag",
 			"Missing meta description",
@@ -148,7 +156,7 @@ func TestAnalysisResult_ScoreCalculation(t *testing.T) {
 			"Missing Open Graph tags",
 			"Missing Twitter Card meta tags",
 			"Low word count",
-		}, 35},
+		}, 32},
 	}
 
 	for _, tt := range tests {

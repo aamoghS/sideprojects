@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -26,9 +27,10 @@ type Config struct {
 	Bridge   string
 	Template int
 	Insecure bool
+	DataDir  string
 }
 
-func ConfigFromEnv() Config {
+func ConfigFromEnv(dataDir string) Config {
 	tmpl, _ := strconv.Atoi(strings.TrimSpace(os.Getenv("PLATE_PROXMOX_TEMPLATE")))
 	return Config{
 		URL:      strings.TrimRight(os.Getenv("PLATE_PROXMOX_URL"), "/"),
@@ -39,6 +41,7 @@ func ConfigFromEnv() Config {
 		Bridge:   envOr("PLATE_PROXMOX_BRIDGE", "vmbr0"),
 		Template: tmpl,
 		Insecure: os.Getenv("PLATE_PROXMOX_INSECURE") == "true",
+		DataDir:  dataDir,
 	}
 }
 
@@ -104,15 +107,21 @@ func (p *Provider) Create(ctx context.Context, inst vm.Instance, plan plans.Plan
 	resize := url.Values{}
 	resize.Set("cores", strconv.Itoa(plan.CPU))
 	resize.Set("memory", strconv.Itoa(plan.Memory))
-	resizePath := fmt.Sprintf("/api2/json/nodes/%s/qemu/%d/config", p.cfg.Node, vmid)
-	if err := p.putForm(ctx, resizePath, resize); err != nil {
+	configPath := fmt.Sprintf("/api2/json/nodes/%s/qemu/%d/config", p.cfg.Node, vmid)
+	if err := p.putForm(ctx, configPath, resize); err != nil {
 		return "", fmt.Errorf("resize vm: %w", err)
 	}
 
 	if plan.Disk > 0 {
 		disk := url.Values{}
 		disk.Set("scsi0", fmt.Sprintf("%s:%d", p.cfg.Storage, plan.Disk))
-		_ = p.putForm(ctx, resizePath, disk)
+		_ = p.putForm(ctx, configPath, disk)
+	}
+
+	if len(inst.SSHKeys) > 0 || inst.Hostname != "" || inst.PublicIPv4 != "" {
+		if err := p.applyCloudInit(ctx, vmid, inst); err != nil {
+			return "", fmt.Errorf("cloud-init: %w", err)
+		}
 	}
 
 	startPath := fmt.Sprintf("/api2/json/nodes/%s/qemu/%d/status/start", p.cfg.Node, vmid)
@@ -121,6 +130,73 @@ func (p *Provider) Create(ctx context.Context, inst vm.Instance, plan plans.Plan
 	}
 
 	return strconv.Itoa(vmid), nil
+}
+
+func (p *Provider) applyCloudInit(ctx context.Context, vmid int, inst vm.Instance) error {
+	userData, err := cloudInitUserData(inst)
+	if err != nil {
+		return err
+	}
+	dir := filepath.Join(p.cfg.DataDir, "cloud-init")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+	snippet := filepath.Join(dir, fmt.Sprintf("%s.yaml", inst.ID))
+	if err := os.WriteFile(snippet, []byte(userData), 0o644); err != nil {
+		return err
+	}
+
+	form := url.Values{}
+	form.Set("cicustom", fmt.Sprintf("user=local:snippets/plate-%s.yaml", inst.ID))
+	configPath := fmt.Sprintf("/api2/json/nodes/%s/qemu/%d/config", p.cfg.Node, vmid)
+	if err := p.putForm(ctx, configPath, form); err != nil {
+		form.Set("cicustom", fmt.Sprintf("user=local:snippets/%s", filepath.Base(snippet)))
+		if err2 := p.putForm(ctx, configPath, form); err2 != nil {
+			return err
+		}
+	}
+	if inst.Hostname != "" {
+		h := url.Values{}
+		h.Set("name", inst.Hostname)
+		_ = p.putForm(ctx, configPath, h)
+	}
+	if inst.PublicIPv4 != "" {
+		ipcfg := url.Values{}
+		ipcfg.Set("ipconfig0", publicIPConfig(inst.PublicIPv4))
+		_ = p.putForm(ctx, configPath, ipcfg)
+	}
+	return nil
+}
+
+func publicIPConfig(ip string) string {
+	gw := strings.TrimSpace(os.Getenv("PLATE_IP_POOL_GW"))
+	if gw == "" {
+		return "ip=" + ip + "/32"
+	}
+	prefix := strings.TrimSpace(os.Getenv("PLATE_IP_POOL_PREFIX"))
+	if prefix == "" {
+		prefix = "24"
+	}
+	return fmt.Sprintf("ip=%s/%s,gw=%s", ip, prefix, gw)
+}
+
+func cloudInitUserData(inst vm.Instance) (string, error) {
+	var b strings.Builder
+	b.WriteString("#cloud-config\n")
+	if inst.Hostname != "" {
+		b.WriteString("hostname: ")
+		b.WriteString(inst.Hostname)
+		b.WriteString("\n")
+	}
+	if len(inst.SSHKeys) > 0 {
+		b.WriteString("ssh_authorized_keys:\n")
+		for _, k := range inst.SSHKeys {
+			b.WriteString("  - ")
+			b.WriteString(k)
+			b.WriteString("\n")
+		}
+	}
+	return b.String(), nil
 }
 
 func (p *Provider) Start(ctx context.Context, inst vm.Instance) error {
@@ -144,6 +220,7 @@ func (p *Provider) Sync(ctx context.Context, inst vm.Instance) (vm.Instance, err
 	if err != nil {
 		inst.Status = vm.StatusError
 		inst.Error = err.Error()
+		inst.Health = &vm.Health{OK: false, Detail: err.Error(), CheckedAt: time.Now().UTC()}
 		return inst, nil
 	}
 
@@ -155,13 +232,91 @@ func (p *Provider) Sync(ctx context.Context, inst vm.Instance) (vm.Instance, err
 	if err := json.Unmarshal(body, &resp); err != nil {
 		return inst, err
 	}
+	running := resp.Data.Status == "running"
 	switch resp.Data.Status {
 	case "running":
 		inst.Status = vm.StatusRunning
 	default:
 		inst.Status = vm.StatusStopped
 	}
+	inst.Health = &vm.Health{
+		OK:        running,
+		Detail:    resp.Data.Status,
+		CheckedAt: time.Now().UTC(),
+	}
 	return inst, nil
+}
+
+func (p *Provider) ApplyFirewall(ctx context.Context, inst vm.Instance) error {
+	if inst.BackendID == "" || len(inst.Firewall) == 0 {
+		return nil
+	}
+	vmid := inst.BackendID
+	for _, rule := range inst.Firewall {
+		form := url.Values{}
+		form.Set("enable", "1")
+		form.Set("action", "ACCEPT")
+		form.Set("type", strings.ToUpper(rule.Protocol))
+		form.Set("dport", strconv.Itoa(rule.Port))
+		path := fmt.Sprintf("/api2/json/nodes/%s/qemu/%s/firewall/rules", p.cfg.Node, vmid)
+		if err := p.postForm(ctx, path, form); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (p *Provider) RemoveFirewall(ctx context.Context, inst vm.Instance) error {
+	return nil
+}
+
+func (p *Provider) SnapshotCreate(ctx context.Context, inst vm.Instance, name string) (vm.Snapshot, error) {
+	if name == "" {
+		name = "snap-" + time.Now().UTC().Format("20060102-150405")
+	}
+	form := url.Values{}
+	form.Set("snapname", name)
+	path := fmt.Sprintf("/api2/json/nodes/%s/qemu/%s/snapshot", p.cfg.Node, inst.BackendID)
+	if err := p.postForm(ctx, path, form); err != nil {
+		return vm.Snapshot{}, err
+	}
+	return vm.Snapshot{ID: name, Name: name, CreatedAt: time.Now().UTC()}, nil
+}
+
+func (p *Provider) SnapshotList(ctx context.Context, inst vm.Instance) ([]vm.Snapshot, error) {
+	path := fmt.Sprintf("/api2/json/nodes/%s/qemu/%s/snapshot", p.cfg.Node, inst.BackendID)
+	body, err := p.get(ctx, path)
+	if err != nil {
+		return nil, err
+	}
+	var resp struct {
+		Data []struct {
+			Name      string `json:"name"`
+			Snaptime  int64  `json:"snaptime"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return nil, err
+	}
+	out := make([]vm.Snapshot, 0, len(resp.Data))
+	for _, s := range resp.Data {
+		if s.Name == "current" {
+			continue
+		}
+		created := time.Now().UTC()
+		if s.Snaptime > 0 {
+			created = time.Unix(s.Snaptime, 0).UTC()
+		}
+		out = append(out, vm.Snapshot{ID: s.Name, Name: s.Name, CreatedAt: created})
+	}
+	return out, nil
+}
+
+func (p *Provider) SnapshotRestore(ctx context.Context, inst vm.Instance, snapID string) error {
+	form := url.Values{}
+	form.Set("snapname", snapID)
+	path := fmt.Sprintf("/api2/json/nodes/%s/qemu/%s/snapshot/%s/rollback", p.cfg.Node, inst.BackendID, snapID)
+	return p.postForm(ctx, path, form)
 }
 
 func (p *Provider) login(ctx context.Context) error {

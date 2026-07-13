@@ -6,7 +6,13 @@ node_modules/
 __pycache__/
 *.pyc
 optimization/artifacts/
+optimization/_tmp_*
 research/catboost_info/
 research/*.joblib
+
+error.png
+slots_response.json
+*.ipynb
+relay/serve-err.txt
 
 .githooks/

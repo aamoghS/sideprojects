@@ -9,12 +9,12 @@ import (
 	"github.com/aamoghS/sideprojects/plate/internal/provider/proxmox"
 )
 
-func OpenBackend(name, dockerImage string) (provider.Backend, string, error) {
+func OpenBackend(name, dockerImage, dataDir string) (provider.Backend, string, error) {
 	switch strings.ToLower(strings.TrimSpace(name)) {
 	case "", "docker":
-		return docker.New(dockerImage), "docker", nil
+		return docker.New(dockerImage, dataDir), "docker", nil
 	case "proxmox":
-		p, err := proxmox.New(proxmox.ConfigFromEnv())
+		p, err := proxmox.New(proxmox.ConfigFromEnv(dataDir))
 		if err != nil {
 			return nil, "", err
 		}

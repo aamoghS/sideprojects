@@ -42,14 +42,21 @@ func requireEnv(key string) string {
 	return val
 }
 
+func envOrDefault(key, fallback string) string {
+	if val := os.Getenv(key); val != "" {
+		return val
+	}
+	return fallback
+}
+
 func main() {
 	config := BookingConfig{
 		Username:     requireEnv("GT_USERNAME"),
 		Password:     requireEnv("GT_PASSWORD"),
-		RoomID:       "158675",                                         // Clough 342
-		StartTime:    "14:00",                                          // 2:00 PM
-		EndTime:      "15:45",                                          // 3:45 PM
-		BookingDate:  time.Now().AddDate(0, 0, 1).Format("2006-01-02"), // Tomorrow
+		RoomID:       envOrDefault("GT_ROOM_ID", "158675"),
+		StartTime:    envOrDefault("GT_START_TIME", "14:00"),
+		EndTime:      envOrDefault("GT_END_TIME", "15:45"),
+		BookingDate:  envOrDefault("GT_BOOKING_DATE", time.Now().AddDate(0, 0, 1).Format("2006-01-02")),
 		StudentID:    requireEnv("GT_STUDENT_ID"),
 		UserLastName: requireEnv("GT_USER_LAST_NAME"),
 	}

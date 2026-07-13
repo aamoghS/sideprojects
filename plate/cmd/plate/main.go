@@ -11,8 +11,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aamoghS/sideprojects/plate/internal/accounts"
 	"github.com/aamoghS/sideprojects/plate/internal/api"
 	"github.com/aamoghS/sideprojects/plate/internal/control"
+	"github.com/aamoghS/sideprojects/plate/internal/ippool"
+	"github.com/aamoghS/sideprojects/plate/internal/panel"
 	"github.com/aamoghS/sideprojects/plate/internal/plate"
 	"github.com/aamoghS/sideprojects/plate/internal/store"
 	"github.com/aamoghS/sideprojects/plate/internal/vm"
@@ -49,7 +52,7 @@ func main() {
 }
 
 func usage() {
-	fmt.Print(`plate — minimal VPS control plane in Go
+	fmt.Print(`plate — VPS control plane in Go
 
 Usage:
   plate serve   [--listen :8080] [--provider docker|proxmox] [--data .plate]
@@ -59,6 +62,8 @@ Usage:
   plate start   --id <vm-id> [--api ...]
   plate stop    --id <vm-id> [--api ...]
   plate delete  --id <vm-id> [--api ...]
+
+Panel: http://127.0.0.1:8080/panel
 
 Providers:
   docker    dev/homelab via Docker (default)
@@ -79,7 +84,7 @@ func runServe(args []string) {
 	dockerImage := fs.String("docker-image", "ubuntu:22.04", "default image for docker provider")
 	_ = fs.Parse(args)
 
-	backend, name, err := plate.OpenBackend(*providerName, *dockerImage)
+	backend, name, err := plate.OpenBackend(*providerName, *dockerImage, *dataDir)
 	if err != nil {
 		fatal(err)
 	}
@@ -89,10 +94,35 @@ func runServe(args []string) {
 		fatal(err)
 	}
 
-	plane := &control.Plane{Store: st, Backend: backend, Provider: name}
-	srv := &api.Server{Plane: plane}
+	accts, err := accounts.Open(*dataDir)
+	if err != nil {
+		fatal(err)
+	}
+
+	pool, err := ippool.Open(*dataDir, os.Getenv("PLATE_IP_POOL"))
+	if err != nil {
+		fatal(err)
+	}
+
+	plane := &control.Plane{
+		Store:    st,
+		Accounts: accts,
+		IPPool:   pool,
+		Backend:  backend,
+		Provider: name,
+	}
+	srv := &api.Server{
+		Plane:    plane,
+		Accounts: accts,
+		Panel:    &panel.Server{Plane: plane},
+	}
 
 	fmt.Printf("plate listening on %s (provider=%s, data=%s)\n", *listen, name, *dataDir)
+	panelAddr := *listen
+	if strings.HasPrefix(panelAddr, ":") {
+		panelAddr = "127.0.0.1" + panelAddr
+	}
+	fmt.Printf("panel: http://%s/panel\n", panelAddr)
 	if err := http.ListenAndServe(*listen, srv.Handler()); err != nil {
 		fatal(err)
 	}
@@ -118,7 +148,8 @@ func runList(args []string) {
 		return
 	}
 	for _, v := range out {
-		fmt.Printf("%s  %-12s  %-8s  plan=%-6s  provider=%s  ip=%s\n", v.ID, v.Name, v.Status, v.Plan, v.Provider, v.IPv4)
+		fmt.Printf("%s  %-12s  %-8s  plan=%-6s  provider=%s  ip=%s  pub=%s\n",
+			v.ID, v.Name, v.Status, v.Plan, v.Provider, v.IPv4, v.PublicIPv4)
 	}
 }
 

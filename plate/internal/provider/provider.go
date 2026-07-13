@@ -14,4 +14,9 @@ type Backend interface {
 	Stop(ctx context.Context, inst vm.Instance) error
 	Delete(ctx context.Context, inst vm.Instance) error
 	Sync(ctx context.Context, inst vm.Instance) (vm.Instance, error)
+	ApplyFirewall(ctx context.Context, inst vm.Instance) error
+	RemoveFirewall(ctx context.Context, inst vm.Instance) error
+	SnapshotCreate(ctx context.Context, inst vm.Instance, name string) (vm.Snapshot, error)
+	SnapshotList(ctx context.Context, inst vm.Instance) ([]vm.Snapshot, error)
+	SnapshotRestore(ctx context.Context, inst vm.Instance, snapID string) error
 }

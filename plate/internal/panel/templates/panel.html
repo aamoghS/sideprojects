@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>plate</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 1.5rem; background: #0f1117; color: #e4e4e7; }
+    h1 { font-size: 1.25rem; font-weight: 600; margin: 0 0 1rem; }
+    section { margin-bottom: 2rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid #27272a; }
+    th { color: #a1a1aa; font-weight: 500; }
+    .ok { color: #4ade80; }
+    .bad { color: #f87171; }
+    form { display: grid; gap: 0.75rem; max-width: 28rem; }
+    label { display: grid; gap: 0.25rem; font-size: 0.875rem; color: #a1a1aa; }
+    input, select, textarea { padding: 0.5rem; border: 1px solid #3f3f46; border-radius: 4px; background: #18181b; color: #e4e4e7; }
+    button, .btn { padding: 0.35rem 0.65rem; border: 1px solid #3f3f46; border-radius: 4px; background: #27272a; color: #e4e4e7; cursor: pointer; font-size: 0.8125rem; text-decoration: none; display: inline-block; }
+    button[type=submit] { background: #2563eb; border-color: #2563eb; }
+    .actions form { display: inline; }
+  </style>
+</head>
+<body>
+  <h1>plate</h1>
+
+  <section>
+    <h2 style="font-size:1rem;margin:0 0 0.75rem">Create VM</h2>
+    <form method="post" action="/panel/create">
+      <label>Name<input name="name" required placeholder="web-1"></label>
+      <label>Plan
+        <select name="plan">
+          {{range .Plans}}<option value="{{.ID}}">{{.ID}} ({{.CPU}} cpu, {{.Memory}}MB)</option>{{end}}
+        </select>
+      </label>
+      <label>Hostname<input name="hostname" placeholder="web-1.example.com"></label>
+      <label>SSH public keys<textarea name="ssh_keys" rows="3" placeholder="ssh-ed25519 AAAA..."></textarea></label>
+      <button type="submit">Create</button>
+    </form>
+  </section>
+
+  <section>
+    <h2 style="font-size:1rem;margin:0 0 0.75rem">VMs</h2>
+    {{if .VMs}}
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Name</th><th>Status</th><th>Plan</th><th>Public IP</th><th>Health</th><th></th></tr>
+      </thead>
+      <tbody>
+        {{range .VMs}}
+        <tr>
+          <td><code>{{.ID}}</code></td>
+          <td>{{.Name}}</td>
+          <td>{{.Status}}</td>
+          <td>{{.Plan}}</td>
+          <td>{{.PublicIPv4}}</td>
+          <td>{{if .Health}}{{if .Health.OK}}<span class="ok">ok</span>{{else}}<span class="bad">{{.Health.Detail}}</span>{{end}}{{else}}—{{end}}</td>
+          <td class="actions">
+            <form method="post" action="/panel/{{.ID}}/start"><button type="submit">Start</button></form>
+            <form method="post" action="/panel/{{.ID}}/stop"><button type="submit">Stop</button></form>
+          </td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    {{else}}
+    <p style="color:#71717a">No VMs yet.</p>
+    {{end}}
+  </section>
+</body>
+</html>
