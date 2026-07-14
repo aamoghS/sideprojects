@@ -36,6 +36,12 @@ Toy flat-address UDP protocol. Names like `1` and `host-3` instead of dotted qua
 
 `go build -o ipv1.exe ./cmd/ipv1 && ./ipv1.exe listen 1`
 
+### [cloak](cloak/)
+
+Layer-3 UDP VPN: TUN on each side, NaCl-secretbox IP packets between them. Tunnel addresses like `10.8.0.1/24` ↔ `10.8.0.2/24`. Optional `-socks` if you can't load Wintun/admin.
+
+`go build -o cloak.exe . && ./cloak.exe server -listen :51820 -key lab-psk -addr 10.8.0.1/24`
+
 ## Tools
 
 ### [slugcheck](slugcheck/)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"os/signal"
@@ -47,12 +48,32 @@ Usage:
 `)
 }
 
-func registryFlag(args []string) (flags []string, regPath string) {
+func registryFlag(args []string) (positional []string, regPath string) {
 	fs := flag.NewFlagSet("ipv1", flag.ContinueOnError)
-	fs.SetOutput(os.Stderr)
+	fs.SetOutput(io.Discard)
 	path := fs.String("registry", "", "registry file (default .ipv1/registry.json)")
-	_ = fs.Parse(args)
-	return fs.Args(), *path
+	flagArgs, pos := splitFlags(args)
+	_ = fs.Parse(flagArgs)
+	return pos, *path
+}
+
+func splitFlags(args []string) (flags []string, positional []string) {
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+		if arg == "--" {
+			return flags, append(positional, args[i+1:]...)
+		}
+		if strings.HasPrefix(arg, "-") {
+			flags = append(flags, arg)
+			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") && !strings.Contains(arg, "=") {
+				flags = append(flags, args[i+1])
+				i++
+			}
+			continue
+		}
+		positional = append(positional, arg)
+	}
+	return flags, positional
 }
 
 func openRegistry(path string) *ipv1.Registry {
@@ -126,13 +147,14 @@ func cmdListen(args []string) {
 	fs := flag.NewFlagSet("listen", flag.ExitOnError)
 	port := fs.Int("port", 9876, "UDP listen port")
 	regPath := fs.String("registry", "", "registry file")
-	_ = fs.Parse(args)
+	flagArgs, positional := splitFlags(args)
+	_ = fs.Parse(flagArgs)
 
-	if len(fs.Args()) < 1 {
+	if len(positional) < 1 {
 		fmt.Fprintln(os.Stderr, "usage: ipv1 listen <addr> [--port N]")
 		os.Exit(1)
 	}
-	addr := fs.Args()[0]
+	addr := positional[0]
 
 	udpAddr, err := net.ResolveUDPAddr("udp", fmt.Sprintf(":%d", *port))
 	if err != nil {
