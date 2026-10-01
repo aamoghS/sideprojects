@@ -44,6 +44,12 @@ Layer-3 UDP VPN: TUN on each side, NaCl-secretbox IP packets between them. Tunne
 
 ## Tools
 
+### [grokbot](grokbot/)
+
+Discord tools for Grok Bot. Single Go binary that works as a CLI or a stdio MCP server — list guilds and channels, read messages, send messages via a Discord bot token.
+
+`go build -o grokbot.exe . && ./grokbot.exe guilds`
+
 ### [slugcheck](slugcheck/)
 
 Reads a site's `sitemap.xml`, follows redirects, and flags slug collisions — multiple sitemap URLs that land on the same final page — plus chains that bounce too many times. Complements `surf`'s on-page SEO checks with URL hygiene.
