@@ -6,6 +6,7 @@
 //	grokbot channels <guild_id>
 //	grokbot read <channel_id> [limit]
 //	grokbot send <channel_id> "message"
+//	grokbot say "message"  (webhook, posts as you)
 //	grokbot mcp            (run as stdio MCP server)
 package main
 
@@ -32,6 +33,7 @@ const usage = `usage:
   grokbot channels <guild_id>
   grokbot read <channel_id> [limit]
   grokbot send <channel_id> "message"
+  grokbot say "message"      (webhook, posts as you)
   grokbot mcp`
 
 type Item struct {
@@ -44,8 +46,9 @@ type Message struct {
 	Content string `json:"content"`
 }
 
-func loadToken() (string, error) {
-	if t := os.Getenv("DISCORD_TOKEN"); t != "" {
+// loadEnv reads key from the environment, else from .env in the cwd or next to the binary.
+func loadEnv(key string) (string, error) {
+	if t := os.Getenv(key); t != "" {
 		return t, nil
 	}
 	exe, _ := os.Executable()
@@ -57,26 +60,32 @@ func loadToken() (string, error) {
 		defer f.Close()
 		s := bufio.NewScanner(f)
 		for s.Scan() {
-			if v, ok := strings.CutPrefix(s.Text(), "DISCORD_TOKEN="); ok {
+			if v, ok := strings.CutPrefix(s.Text(), key+"="); ok {
 				return strings.TrimSpace(v), nil
 			}
 		}
 	}
-	return "", fmt.Errorf("DISCORD_TOKEN not set (env var or .env file)")
+	return "", fmt.Errorf("%s not set (env var or .env file)", key)
 }
 
 func call(method, path string, body, out any) error {
-	token, err := loadToken()
+	token, err := loadEnv("DISCORD_TOKEN")
 	if err != nil {
 		return err
 	}
+	return do(method, api+path, "Bot "+token, body, out)
+}
+
+func do(method, url, auth string, body, out any) error {
 	var rd io.Reader
 	if body != nil {
 		b, _ := json.Marshal(body)
 		rd = bytes.NewReader(b)
 	}
-	req, _ := http.NewRequest(method, api+path, rd)
-	req.Header.Set("Authorization", "Bot "+token)
+	req, _ := http.NewRequest(method, url, rd)
+	if auth != "" {
+		req.Header.Set("Authorization", auth)
+	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "DiscordBot (grokbot, 1.0)")
 	resp, err := http.DefaultClient.Do(req)
@@ -135,6 +144,18 @@ func sendMessage(channelID, content string) (string, error) {
 	return m.ID, err
 }
 
+// sayAsMe posts via the webhook in DISCORD_WEBHOOK_URL, which shows the
+// webhook's name and avatar (set them to yours in Discord).
+func sayAsMe(content string) (string, error) {
+	url, err := loadEnv("DISCORD_WEBHOOK_URL")
+	if err != nil {
+		return "", err
+	}
+	var m struct{ ID string }
+	err = do("POST", url+"?wait=true", "", map[string]string{"content": content}, &m)
+	return m.ID, err
+}
+
 func main() {
 	args := os.Args[1:]
 	if len(args) == 0 {
@@ -165,6 +186,10 @@ func main() {
 		var id string
 		id, err = sendMessage(args[1], args[2])
 		out = map[string]string{"sent_id": id}
+	case args[0] == "say" && len(args) == 2:
+		var id string
+		id, err = sayAsMe(args[1])
+		out = map[string]string{"sent_id": id}
 	default:
 		fail(usage)
 	}
@@ -189,6 +214,10 @@ type guildIn struct {
 type readIn struct {
 	ChannelID string `json:"channel_id" jsonschema:"channel id"`
 	Limit     int    `json:"limit,omitempty" jsonschema:"number of messages, default 20"`
+}
+
+type sayIn struct {
+	Content string `json:"content" jsonschema:"message text"`
 }
 
 type sendIn struct {
@@ -226,6 +255,12 @@ func runMCP() error {
 	mcp.AddTool(s, &mcp.Tool{Name: "send_message", Description: "Send a message to a channel. Returns the message id."},
 		func(ctx context.Context, req *mcp.CallToolRequest, in sendIn) (*mcp.CallToolResult, any, error) {
 			id, err := sendMessage(in.ChannelID, in.Content)
+			return text(map[string]string{"sent_id": id}, err)
+		})
+
+	mcp.AddTool(s, &mcp.Tool{Name: "send_as_me", Description: "Send a message as the user (via webhook, shows the user's name and avatar) to the webhook's channel."},
+		func(ctx context.Context, req *mcp.CallToolRequest, in sayIn) (*mcp.CallToolResult, any, error) {
+			id, err := sayAsMe(in.Content)
 			return text(map[string]string{"sent_id": id}, err)
 		})
 
