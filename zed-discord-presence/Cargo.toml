@@ -1,0 +1,25 @@
+[package]
+name = "zed-discord-presence"
+version = "0.2.4"
+edition = "2021"
+license-file = "LICENSE"
+repository = "https://github.com/xhyrom/zed-discord-presence"
+
+[lib]
+path = "src/discord_presence.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+zed_extension_api = "0.7.0"
+
+[workspace]
+members = ["lsp"]
+
+[workspace.lints]
+[workspace.lints.clippy]
+correctness = "deny"
+suspicious = "warn"
+complexity = "warn"
+perf = "warn"
+style = "deny"
+pedantic = "warn"
