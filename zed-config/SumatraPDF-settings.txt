@@ -1,0 +1,2 @@
+InverseSearchCmdLine = "C:\Users\bootcamp\AppData\Local\Programs\Zed\bin\zed.exe" "%f:%l"
+EnableTeXEnhancements = true

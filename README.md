@@ -86,6 +86,16 @@ Scripts for booking GT library study rooms through LibCal. Logs in with your GT 
 
 Set `GT_USERNAME`, `GT_PASSWORD`, `GT_STUDENT_ID`, and `GT_USER_LAST_NAME`, then `go run .` in `gt-room-booking/`.
 
+### [zed-discord-presence](zed-discord-presence/)
+
+Fork of xhyrom's Zed Discord Rich Presence extension. Shows VS Code-style status on Discord ("Editing main.rs", "Workspace: my-project") with language icons, git button, and idle state.
+
+`cargo build --release -p discord-presence-lsp`, put the binary on PATH, then `zed: install dev extension`.
+
+### [zed-config](zed-config/)
+
+My Zed settings: Claude and Cursor agents on existing logins, LaTeX build on save with SumatraPDF preview.
+
 ## Libraries
 
 ### [minstd](minstd/)
