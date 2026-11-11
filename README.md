@@ -104,6 +104,14 @@ Small stdlib shims (`atomic`, `sync`, `http`, `net`, etc.) extracted while build
 
 `go test ./...`
 
+## Rust
+
+### [rust-concurrent-threads](rust-concurrent-threads/)
+
+Std-only walkthrough of Rust threads, one idea per example: spawn and join, channels, `Arc<Mutex>`, scoped threads with atomics, then a prime count on every core that prints the speedup over one thread.
+
+`cargo run --example 01_spawn_join`, then `cargo run --release` for the speedup.
+
 ## Python / ML
 
 ### [optimization](optimization/)
