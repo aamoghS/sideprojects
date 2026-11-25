@@ -132,3 +132,46 @@ Default firewall on create: SSH (22), HTTP (80), HTTPS (443).
 ```bash
 go test ./...
 ```
+
+## System design
+
+How a request or a run moves through the code, then the choices behind that shape. In the decision charts, a **solid** box is the route this repo takes and a **dashed** box is the alternative it turns down; the edge label is the tradeoff.
+
+### Create a machine
+
+The CLI, the panel, and /v1 hit one process. That process assigns an address from the pool, then calls whichever provider is configured.
+
+```mermaid
+flowchart TD
+  classDef chosen fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  client["CLI, panel, or /v1"]
+  plate["plate serve"]
+  pool["ippool"]
+  docker["Docker provider"]
+  pve["Proxmox provider"]
+  client --> plate
+  plate --> pool
+  plate --> docker
+  plate --> pve
+  class client,plate,pool,docker,pve chosen
+```
+
+### One process, two providers
+
+Docker is the laptop path. Proxmox clones a cloud-init template and starts a real VM. State is JSON under .plate/ . A second plate serve would also believe it owns the pool. There is no lock and no leader election.
+
+```mermaid
+flowchart TD
+  classDef chosen fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  classDef rejected fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,stroke-dasharray:5 5,color:#616161
+  prov{Which provider}
+  prov -->|"laptop, iptables when both addresses are known"| docker["Docker"]
+  prov -->|"clone a template, resize, inject keys"| pve["Proxmox"]
+  owners{Who owns the pool}
+  owners -->|"one process, files under .plate"| one["Single plate serve"]
+  owners -->|"two processes, no lock"| two["A second plate serve"]
+  class docker,pve,one chosen
+  class two rejected
+```
+
+Longer write-up: [aamogh.vercel.app/projects/plate](https://aamogh.vercel.app/projects/plate.html)

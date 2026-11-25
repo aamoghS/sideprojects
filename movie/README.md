@@ -29,3 +29,44 @@ go run ./cmd/movie-finder -test-proxies -docket config/proxy-docket.json
 ```
 
 Offline mode (`-offline`) skips live Reddit/Wikipedia fetches and uses seed picks only — useful for testing output formatting.
+
+## System design
+
+How a request or a run moves through the code, then the choices behind that shape. In the decision charts, a **solid** box is the route this repo takes and a **dashed** box is the alternative it turns down; the edge label is the tradeoff.
+
+### Genre agent
+
+An agent is a config: subreddits, seeds, a genre. Threads are fetched through one local forward proxy and redban. Wikipedia attaches a plot. An optional orchestrator can run agents as separate workers.
+
+```mermaid
+flowchart TD
+  classDef chosen fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  agent["Genre agent config"]
+  reddit["Subreddit threads"]
+  proxy["Local forward proxy"]
+  ban["redban"]
+  wiki["Wikipedia plot"]
+  agent --> reddit --> proxy --> ban
+  agent --> wiki
+  class agent,reddit,proxy,ban,wiki chosen
+```
+
+### Split the genres
+
+A bad parse in one genre does not throw away the others. The recommendation is the extracted title plus the plot. There is no model ranking them. The proxy is local so the request’s origin stays on this machine.
+
+```mermaid
+flowchart TD
+  classDef chosen fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  classDef rejected fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,stroke-dasharray:5 5,color:#616161
+  q{A bad parse}
+  q -->|"each genre has its own config"| split["Separate agents"]
+  q -->|"one search named movies"| one["A single list"]
+  rank{What is recommended}
+  rank -->|"title plus plot"| extract["Extracted text"]
+  rank -->|"a score over the titles"| model["A ranker"]
+  class split,extract chosen
+  class one,model rejected
+```
+
+Longer write-up: [aamogh.vercel.app/projects/movie](https://aamogh.vercel.app/projects/movie.html)

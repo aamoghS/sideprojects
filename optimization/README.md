@@ -109,3 +109,39 @@ optimization/
 - Swap the dataset in `src/data.py` — keep the same pipeline shape
 - Add search ranges in `src/tune.py`
 - Register new RF factories in `src/models.py` under `RF_VARIANTS`
+
+## System design
+
+How a request or a run moves through the code, then the choices behind that shape. In the decision charts, a **solid** box is the route this repo takes and a **dashed** box is the alternative it turns down; the edge label is the tradeoff.
+
+### Tune, then bin the scores
+
+The set is UCI Adult. The lab runs random search, Optuna, threshold sweeps, and the other tuners in the repo from weak baselines. calibrate.py prints binned predicted rates against actual rates, with Brier and ECE.
+
+```mermaid
+flowchart TD
+  classDef chosen fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  adult["UCI Adult"]
+  search["Random search, Optuna, threshold sweeps"]
+  pipe["Saved pipeline"]
+  cal["calibrate.py"]
+  adult --> search --> pipe --> cal
+  class adult,search,pipe,cal chosen
+```
+
+### The bins are the point
+
+A higher accuracy is not the last line. A probability that says 0.8 when the bin was 0.5 is a different failure, and a single accuracy number cannot show it.
+
+```mermaid
+flowchart TD
+  classDef chosen fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
+  classDef rejected fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,stroke-dasharray:5 5,color:#616161
+  q{After the search}
+  q -->|"predicted rate against actual rate"| cal["Binned calibration"]
+  q -->|"accuracy and stop"| acc["Accuracy only"]
+  class cal chosen
+  class acc rejected
+```
+
+Longer write-up: [aamogh.vercel.app/projects/optimization](https://aamogh.vercel.app/projects/optimization.html)
